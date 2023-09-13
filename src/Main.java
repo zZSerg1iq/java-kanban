@@ -1,6 +1,14 @@
+import test.NewbieTests;
+
 public class Main {
 
     public static void main(String[] args) {
-        System.out.println("Поехали!");
+        new Main().runTest();
     }
+
+    private void runTest() {
+        new NewbieTests().runTests();
+    }
+
+
 }
