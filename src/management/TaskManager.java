@@ -22,8 +22,7 @@ public class TaskManager {
     }
 
 
-    //Методы для каждого из типа задач(Задача/Эпик/Подзадача):
-    //Получение списка всех задач.
+
     public ArrayList<Task> getSubtaskList() {
         return new ArrayList<>(taskTypeMap.get(TaskType.SUB).values());
     }
@@ -37,7 +36,7 @@ public class TaskManager {
     }
 
 
-    //Удаление всех задач.
+
     public void removeAllSubtasks() {
         var subTasks = taskTypeMap.get(TaskType.SUB);
         for (Integer ID: subTasks.keySet()) {
@@ -58,7 +57,7 @@ public class TaskManager {
     }
 
 
-    //Получение по идентификатору.
+
     public Task getSubtask(int taskId) {
         return taskTypeMap.get(TaskType.SUB).get(taskId);
     }
@@ -72,7 +71,7 @@ public class TaskManager {
     }
 
 
-    // Создание. Сам объект должен передаваться в качестве параметра.
+
     public Task addTask(Task task) {
         task.setTaskId(++tasksNumber);
         task.setStatus(Status.NEW);
@@ -98,8 +97,6 @@ public class TaskManager {
 
 
 
-
-    //Обновление. Новая версия объекта с верным идентификатором передаётся в виде параметра.
     public Task updateTask(Task task) {
         var taskHashMap = taskTypeMap.get(task.getType());
 
@@ -116,7 +113,7 @@ public class TaskManager {
     }
 
 
-    //Удаление по идентификатору.
+
     public Task removeSubtask(int taskId) {
         SubTask subTask = (SubTask) taskTypeMap.get(TaskType.SUB).get(taskId);
         if (subTask != null) {
@@ -145,9 +142,6 @@ public class TaskManager {
     }
 
 
-    //Дополнительные методы:
-
-    //Получение списка всех подзадач определённого эпика.
     public List<SubTask> getEpicSubTaskList(int taskId){
         var taskHashMap = taskTypeMap.get(TaskType.EPIC);
         EpicTask epic = (EpicTask)taskHashMap.get(taskId);

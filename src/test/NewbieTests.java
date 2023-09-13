@@ -30,23 +30,12 @@ public class NewbieTests extends TaskManager{
         addSubTasks();
         addRegularTasks();
 
-        //add task test
         equals_test();
-
-        //update test
         inProgressStatusEpicTaskTest();
         doneStatusEpicTaskTest();
-
-        //removeEpic Test
         epicTaskRemoveTest();
-
-        //removeSub Test
         subTaskRemoveTest();
-
-        //removeOneTest
         removeSomeTasksTest();
-
-        //removeAllTest
         removeAllTest();
     }
 
