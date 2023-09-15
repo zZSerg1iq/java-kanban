@@ -4,10 +4,8 @@ import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
 import enity.task.status.Status;
-import enity.task.type.TaskType;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,144 +13,148 @@ import java.util.List;
 public class TaskManager {
 
     private int tasksNumber = 0;
-    protected final EnumMap<TaskType, HashMap<Integer, Task>> taskTypeMap;
+    private final HashMap<Integer, EpicTask> epicTaskMap;
+    private final HashMap<Integer, SubTask> subTaskMap;
+    private final HashMap<Integer, Task> taskMap;
 
     public TaskManager() {
-        taskTypeMap = new EnumMap<>(TaskType.class);
+        taskMap = new HashMap<>();
+        epicTaskMap = new HashMap<>();
+        subTaskMap = new HashMap<>();
     }
 
-
-
-    public ArrayList<Task> getSubtaskList() {
-        return new ArrayList<>(taskTypeMap.get(TaskType.SUB).values());
-    }
 
     public ArrayList<Task> getEpicTaskList() {
-        return new ArrayList<>(taskTypeMap.get(TaskType.EPIC).values());
+        return new ArrayList<>(epicTaskMap.values());
     }
 
-    public ArrayList<Task> getRegularTaskList() {
-        return new ArrayList<>(taskTypeMap.get(TaskType.REGULAR).values());
+    public ArrayList<Task> getTaskList() {
+        return new ArrayList<>(taskMap.values());
     }
 
-
-
-    public void removeAllSubtasks() {
-        var subTasks = taskTypeMap.get(TaskType.SUB);
-        for (Integer ID: subTasks.keySet()) {
-            removeSubtask(ID);
-        }
-        taskTypeMap.get(TaskType.SUB).clear();
+    public ArrayList<Task> getSubtaskList() {
+        return new ArrayList<>(subTaskMap.values());
     }
-
-    public void removeAllEpicTasks() {
-        var epicTasks = taskTypeMap.get(TaskType.EPIC);
-        for (Integer ID: epicTasks.keySet()) {
-            removeEpicTask(ID);
-        }
-    }
-
-    public void removeAllRegularTasks() {
-        taskTypeMap.get(TaskType.REGULAR).clear();
-    }
-
-
-
-    public Task getSubtask(int taskId) {
-        return taskTypeMap.get(TaskType.SUB).get(taskId);
-    }
-
-    public Task getEpicTask(int taskId) {
-        return taskTypeMap.get(TaskType.EPIC).get(taskId);
-    }
-
-    public Task getRegularTask(int taskId) {
-        return taskTypeMap.get(TaskType.REGULAR).get(taskId);
-    }
-
 
 
     public Task addTask(Task task) {
         task.setTaskId(++tasksNumber);
         task.setStatus(Status.NEW);
 
-        var taskHashMap = taskTypeMap.computeIfAbsent(task.getType(), k -> new HashMap<>());
-
-        if (task.getType() == TaskType.SUB) {
-            SubTask subTask = (SubTask) task;
-            EpicTask epicTask = (EpicTask) taskTypeMap.get(TaskType.EPIC).get(subTask.getHostTaskID());
-            if (epicTask != null) {
-                epicTask.addSubTask(subTask);
-            }
-        }
-
-        taskHashMap.put(task.getTaskId(), task);
-        taskTypeMap.put(task.getType(), taskHashMap);
-
-        if (taskHashMap.get(tasksNumber) == null){
-           return task;
-        }
-        return taskHashMap.put(tasksNumber, task);
+        return taskMap.put(task.getTaskId(), task);
     }
 
-
+    public Task getTask(int taskId) {
+        return taskMap.get(taskId);
+    }
 
     public Task updateTask(Task task) {
-        var taskHashMap = taskTypeMap.get(task.getType());
-
-        if (taskHashMap != null) {
-            if (task.getType() == TaskType.SUB){
-                EpicTask epicTask = (EpicTask) taskTypeMap
-                        .get(TaskType.EPIC)
-                        .get(((SubTask) task).getHostTaskID());
-                epicTask.resetStatus();
-            }
-            return taskHashMap.put(tasksNumber, task);
+        if (taskMap.containsKey(task.getTaskId())) {
+            return taskMap.put(task.getTaskId(), task);
         }
-        return null;
+        throw new RuntimeException("Task " + task + " not found");
+    }
+
+    public Task removeTask(int taskId) {
+        return taskMap.remove(taskId);
+    }
+
+    public void removeAllTasks() {
+        taskMap.clear();
     }
 
 
+    public EpicTask addEpicTask(EpicTask task) {
+        task.setTaskId(++tasksNumber);
+        task.setStatus(Status.NEW);
 
-    public Task removeSubtask(int taskId) {
-        SubTask subTask = (SubTask) taskTypeMap.get(TaskType.SUB).get(taskId);
-        if (subTask != null) {
-            EpicTask epicTask = (EpicTask) taskTypeMap.get(TaskType.EPIC).get(subTask.getHostTaskID());
-            epicTask.subTaskRemove(subTask);
-            epicTask.resetStatus();
-            taskTypeMap.get(TaskType.SUB).remove(taskId);
+        return epicTaskMap.put(task.getTaskId(), task);
+    }
+
+    public EpicTask getEpicTask(int taskId) {
+        return epicTaskMap.get(taskId);
+    }
+
+    public EpicTask updateEpicTask(EpicTask newEpic) {
+        EpicTask oldEpic = epicTaskMap.get(newEpic.getTaskId());
+        if (oldEpic != null) {
+            return epicTaskMap.put(newEpic.getTaskId(), newEpic);
         }
-
-        return subTask;
+        throw new RuntimeException("Task " + newEpic + " not found");
     }
 
-    public Task removeEpicTask(int taskId) {
-        EpicTask epicTask = (EpicTask) taskTypeMap.get(TaskType.EPIC).get(taskId);
-        var subTaskList = epicTask.getSubTaskList();
-        var subTaskHashMap = taskTypeMap.get(TaskType.SUB);
-
-        for (Task subtask: subTaskList) {
-            subTaskHashMap.remove(subtask.getTaskId());
-        }
-        return taskTypeMap.get(TaskType.EPIC).remove(taskId);
-    }
-
-    public Task removeRegularTask(int taskId) {
-        return taskTypeMap.get(TaskType.REGULAR).remove(taskId);
-    }
-
-
-    public List<SubTask> getEpicSubTaskList(int taskId){
-        var taskHashMap = taskTypeMap.get(TaskType.EPIC);
-        EpicTask epic = (EpicTask)taskHashMap.get(taskId);
-        if (epic != null){
+    public List<SubTask> getEpicSubTaskList(int taskId) {
+        EpicTask epic = epicTaskMap.get(taskId);
+        if (epic != null) {
             return epic.getSubTaskList();
         }
         return null;
     }
 
-    protected EnumMap<TaskType, HashMap<Integer, Task>> getTaskTypeMap(){
-        return taskTypeMap;
+    public EpicTask removeEpicTask(int taskId) {
+        EpicTask epicTask = epicTaskMap.get(taskId);
+
+        if (epicTask != null) {
+            var subTaskList = epicTask.getSubTaskList();
+            for (SubTask subtask : subTaskList) {
+                subTaskList.remove(subtask.getTaskId());
+            }
+            taskMap.remove(taskId);
+        }
+        return epicTask;
+    }
+
+    public void removeAllEpicTasks() {
+        for (Integer ID : epicTaskMap.keySet()) {
+            removeEpicTask(ID);
+        }
+    }
+
+
+    public SubTask addSubTask(SubTask task) {
+        task.setTaskId(++tasksNumber);
+        task.setStatus(Status.NEW);
+
+        EpicTask epicTask = epicTaskMap.get(task.getHostTaskID());
+        if (epicTask != null) {
+            epicTask.addSubTask(task);
+            epicTask.resetStatus();
+        } else {
+            throw new RuntimeException("Host class for task " + task + " not found");
+        }
+
+        return subTaskMap.put(task.getTaskId(), task);
+    }
+
+    public SubTask getSubTask(int taskId) {
+        return subTaskMap.get(taskId);
+    }
+
+    public SubTask updateSubTask(SubTask task) {
+        if (subTaskMap.containsKey(task.getTaskId())) {
+            SubTask subTask = subTaskMap.put(task.getTaskId(), task);
+            epicTaskMap.get(task.getHostTaskID()).resetStatus();
+            return subTask;
+        }
+        throw new RuntimeException("Task " + task + " not found");
+    }
+
+    public SubTask removeSubTask(int taskId) {
+        SubTask subTask = subTaskMap.get(taskId);
+        if (subTask != null) {
+            EpicTask epicTask = epicTaskMap.get(subTask.getHostTaskID());
+            epicTask.subTaskRemove(subTask);
+            epicTask.resetStatus();
+        }
+
+        return subTask;
+    }
+
+    public void removeAllSubtasks() {
+        for (Integer ID : subTaskMap.keySet()) {
+            removeSubTask(ID);
+        }
+        taskMap.clear();
     }
 
 }

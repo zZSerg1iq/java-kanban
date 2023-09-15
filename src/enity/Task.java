@@ -6,7 +6,7 @@ import enity.task.type.TaskType;
 import java.util.Objects;
 
 
-public class Task{
+public class Task {
 
     private int taskId = 0;
     private TaskType type;
@@ -21,10 +21,10 @@ public class Task{
         typeFieldInit();
     }
 
-    private void typeFieldInit(){
+    private void typeFieldInit() {
         String className = this.getClass().getName();
 
-        if (className.contains("Epic")){
+        if (className.contains("Epic")) {
             type = TaskType.EPIC;
         } else if (className.contains("Sub")) {
             type = TaskType.SUB;

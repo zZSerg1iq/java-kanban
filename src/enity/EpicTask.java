@@ -27,18 +27,15 @@ public class EpicTask extends Task {
         return subTaskList;
     }
 
-    public LinkedList<Task> getSubTaskList2() {
-        return new LinkedList<>(subTaskList);
-    }
-
     public void resetStatus(){
         int DONE = 0;
         int IN_PROGRESS = 0;
 
         for (SubTask subTask: subTaskList ) {
             switch (subTask.getStatus()){
-                case DONE: {DONE++; break;}
-                case IN_PROGRESS:{IN_PROGRESS++; break;}
+                case DONE: DONE++;
+                break;
+                case IN_PROGRESS: IN_PROGRESS++;
             }
 
             if (DONE == subTaskList.size()){
@@ -50,6 +47,8 @@ public class EpicTask extends Task {
             }
         }
     }
+
+
 
     @Override
     public boolean equals(Object o) {
