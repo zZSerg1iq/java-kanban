@@ -24,7 +24,7 @@ public class TaskManager {
     }
 
 
-    public ArrayList<Task> getEpicTaskList() {
+    public ArrayList<EpicTask> getEpicTaskList() {
         return new ArrayList<>(epicTaskMap.values());
     }
 
@@ -32,7 +32,7 @@ public class TaskManager {
         return new ArrayList<>(taskMap.values());
     }
 
-    public ArrayList<Task> getSubtaskList() {
+    public ArrayList<SubTask> getSubtaskList() {
         return new ArrayList<>(subTaskMap.values());
     }
 
@@ -75,10 +75,14 @@ public class TaskManager {
         return epicTaskMap.get(taskId);
     }
 
+    //Во избежание ошибок, у меня статус эпика рассчитывает сам эпик. И я конечно же забыл его позвать :(
+    //Спасибо )
     public EpicTask updateEpicTask(EpicTask newEpic) {
         EpicTask oldEpic = epicTaskMap.get(newEpic.getTaskId());
         if (oldEpic != null) {
-            return epicTaskMap.put(newEpic.getTaskId(), newEpic);
+            epicTaskMap.put(newEpic.getTaskId(), newEpic);
+            newEpic.resetStatus();
+            return oldEpic;
         }
         throw new RuntimeException("Task " + newEpic + " not found");
     }
@@ -99,7 +103,7 @@ public class TaskManager {
             for (SubTask subtask : subTaskList) {
                 subTaskList.remove(subtask.getTaskId());
             }
-            taskMap.remove(taskId);
+            epicTaskMap.remove(taskId);
         }
         return epicTask;
     }
@@ -145,6 +149,7 @@ public class TaskManager {
             EpicTask epicTask = epicTaskMap.get(subTask.getHostTaskID());
             epicTask.subTaskRemove(subTask);
             epicTask.resetStatus();
+            subTaskMap.remove(taskId);
         }
 
         return subTask;
@@ -154,7 +159,12 @@ public class TaskManager {
         for (Integer ID : subTaskMap.keySet()) {
             removeSubTask(ID);
         }
-        taskMap.clear();
+        subTaskMap.clear();
     }
+
+    /*
+    Спасибо за ревью)
+    Не понимаю, как я не замечаю таких очевидных косяков сам. Стыдно(
+    */
 
 }
