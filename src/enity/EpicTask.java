@@ -66,7 +66,10 @@ public class EpicTask extends Task {
     @Override
     public String toString() {
         return "EpicTask{" +
-                "subTaskList=" + subTaskList +
+                "taskId="+this.getTaskId()+
+                ", name="+this.getTaskName()+
+                ", status="+this.getStatus()+
+                ", subTaskList=" + subTaskList +
                 '}';
     }
 }

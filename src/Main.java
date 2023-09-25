@@ -1,13 +1,32 @@
+import enity.EpicTask;
+import enity.SubTask;
+import enity.Task;
+import management.Managers;
+import management.history.HistoryManager;
+import management.task.TaskManager;
+
+import java.util.Random;
+
 public class Main {
 
-  /*
-    Тесты, какими я их писал, пришлось выпилить.
-    Я делал поле с мапой protected потому что не хотел, что бы она была доступна извне, хотя подозревал что и мое
-    решение попахивает. Я никогда не писал тестов вне спринга, по этому это был мой первый опыт и он был не очень
-    удачным. Поучусь писать тесты для будущих проектов)
-    Спасибо за ревью еще раз)
-    У тебя приятно учиться)
-  */
+    public static void main(String[] args) {
+        TaskManager taskManager = Managers.getDefault();
 
+        for (int i = 0; i < 20; i++) {
+            taskManager.addTask(getRandomTask(i));
+        }
+
+        HistoryManager historyManager = Managers.getDefaultHistory();
+        historyManager.getHistory().forEach(System.out::println);
+    }
+
+    private static Task getRandomTask(int i){
+        Random random = new Random();
+        int x = random.nextInt(11)+1;
+        if (x <= 5){
+            return new Task("regular_"+i,"");
+        } else
+            return new EpicTask("epic_"+i, "");
+    }
 
 }
