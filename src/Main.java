@@ -20,13 +20,13 @@ public class Main {
         historyManager.getHistory().forEach(System.out::println);
     }
 
-    private static Task getRandomTask(int i){
+    private static Task getRandomTask(int i) {
         Random random = new Random();
-        int x = random.nextInt(11)+1;
-        if (x <= 5){
-            return new Task("regular_"+i,"");
+        int x = random.nextInt(11) + 1;
+        if (x <= 5) {
+            return new Task("regular_" + i, "");
         } else
-            return new EpicTask("epic_"+i, "");
+            return new EpicTask("epic_" + i, "");
     }
 
 }

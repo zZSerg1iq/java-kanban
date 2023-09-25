@@ -21,7 +21,7 @@ public class Managers {
     }
 
     public static HistoryManager getDefaultHistory() {
-        if (historyManager == null){
+        if (historyManager == null) {
             historyManager = new InMemoryHistoryManager();
         }
         return historyManager;
