@@ -7,23 +7,16 @@ import management.task.impl.InMemoryTaskManager;
 
 public class Managers {
 
-    /*Ќадеюсь, € верно пон€л реализацию этого класса :\  */
-
-    private static TaskManager taskManager;
-    private static HistoryManager historyManager;
-
+    /*
+    ¬от по тому € и сомневалс€)
+    я рассуждал с той точки зрени€, что это как раз таки полна€ противоположность фабрики, а скорее "хранитель"
+    */
 
     public static TaskManager getDefault() {
-        if (taskManager == null) {
-            taskManager = new InMemoryTaskManager(getDefaultHistory());
-        }
-        return taskManager;
+        return new InMemoryTaskManager(getDefaultHistory());
     }
 
     public static HistoryManager getDefaultHistory() {
-        if (historyManager == null) {
-            historyManager = new InMemoryHistoryManager();
-        }
-        return historyManager;
+        return new InMemoryHistoryManager();
     }
 }

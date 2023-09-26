@@ -3,17 +3,14 @@ package management.task;
 import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 
 public interface TaskManager {
 
-    ArrayList<EpicTask> getEpicTaskList();
-    ArrayList<Task> getTaskList();
-    ArrayList<SubTask> getSubtaskList();
+    List<EpicTask> getEpicTaskList();
+    List<Task> getTaskList();
+    List<SubTask> getSubtaskList();
 
     void removeAllTasks();
     void removeAllEpicTasks();
@@ -35,5 +32,6 @@ public interface TaskManager {
     SubTask updateSubTask(SubTask task);
     SubTask removeSubTask(int taskId);
 
+    List<Task> getHistory();
 
 }
