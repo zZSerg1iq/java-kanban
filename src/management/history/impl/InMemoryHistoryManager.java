@@ -84,8 +84,10 @@ public class InMemoryHistoryManager implements HistoryManager {
 
             if (Objects.equals(headNode, node)) {
                 head = head.next;
+                head.prev = null;
             } else if (Objects.equals(tailNode, node)) {
                 tail = tail.prev;
+                tail.next = null;
             } else {
                 node.prev.next = node.next;
                 node.next.prev = node.prev;
@@ -160,7 +162,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         historyManager.add(task13);
 
 
-        for (Task t: historyManager.history) {
+        for (Task t: history) {
             System.out.println(t);
         }
 
