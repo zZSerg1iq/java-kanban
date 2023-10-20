@@ -87,18 +87,8 @@ public class InMemoryHistoryManager implements HistoryManager {
             } else if (Objects.equals(tailNode, node)) {
                 tail = tail.prev;
             } else {
-                Node current = headNode.next;
-
-                while (!Objects.equals(node, current)) {
-                    current = current.next;
-                }
-
-                if (current.next != null) {
-                    current.next.prev = current.prev;
-                }
-                if (current.prev != null) {
-                    current.prev.next = current.next;
-                }
+                node.prev.next = node.next;
+                node.next.prev = node.prev;
             }
 
             size--;
