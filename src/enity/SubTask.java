@@ -15,8 +15,8 @@ public class SubTask extends Task{
         this.hostTaskID = hostTaskID;
     }
 
-    public SubTask(int taskId, String taskName, String taskDescription, Status status, int hostTaskID) {
-        super(taskId, taskName, taskDescription, status);
+    public SubTask(int taskId, String taskName, String taskDescription, int hostTaskID) {
+        super(taskId, taskName, taskDescription);
 
         this.hostTaskID = hostTaskID;
     }

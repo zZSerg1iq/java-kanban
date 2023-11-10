@@ -16,8 +16,9 @@ public class EpicTask extends Task {
         subTaskList = new LinkedList<>();
     }
 
-    public EpicTask(int taskId, String taskName, String taskDescription, Status status) {
-        super(taskId, taskName, taskDescription, status);
+    //извиняюсь за невнимательность :\
+    public EpicTask(int taskId, String taskName, String taskDescription) {
+        super(taskId, taskName, taskDescription);
 
         subTaskList = new LinkedList<>();
     }

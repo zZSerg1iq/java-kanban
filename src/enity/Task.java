@@ -21,11 +21,10 @@ public class Task {
         typeFieldInit();
     }
 
-    public Task(int taskId, String taskName, String taskDescription, Status status) {
+    public Task(int taskId, String taskName, String taskDescription) {
         this.taskId = taskId;
         this.taskName = taskName;
         this.taskDescription = taskDescription;
-        this.status = status;
 
         typeFieldInit();
     }

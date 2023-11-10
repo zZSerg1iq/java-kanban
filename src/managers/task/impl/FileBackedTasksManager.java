@@ -184,15 +184,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
         switch (type) {
             case REGULAR: {
-                taskMap.put(id, new Task(id, name, desc, status));
+                taskMap.put(id, new Task(id, name, desc));
                 break;
             }
             case EPIC: {
-                epicTaskMap.put(id, new EpicTask(id, name, desc, status));
+                epicTaskMap.put(id, new EpicTask(id, name, desc));
                 break;
             }
             case SUB: {
-                subTaskMap.put(id, new SubTask(id, name, desc, status, hostId));
+                subTaskMap.put(id, new SubTask(id, name, desc, hostId));
             }
         }
     }
