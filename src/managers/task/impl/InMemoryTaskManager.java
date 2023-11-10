@@ -1,11 +1,11 @@
-package management.task.impl;
+package managers.task.impl;
 
 import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
 import enity.task.status.Status;
-import management.history.HistoryManager;
-import management.task.TaskManager;
+import managers.history.HistoryManager;
+import managers.task.TaskManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,13 +14,19 @@ import java.util.Map;
 
 
 public class InMemoryTaskManager implements TaskManager {
+    @Override
+    public void test() {
+        epicTaskMap.forEach((integer, epicTask) -> System.out.println(epicTask));
+        subTaskMap.forEach((integer, epicTask) -> System.out.println(epicTask));
+        taskMap.forEach((integer, epicTask) -> System.out.println(epicTask));
+    }
 
     private int tasksNumber = 0;
-    private final Map<Integer, EpicTask> epicTaskMap;
-    private final Map<Integer, SubTask> subTaskMap;
-    private final Map<Integer, Task> taskMap;
+    protected final Map<Integer, EpicTask> epicTaskMap;
+    protected final Map<Integer, SubTask> subTaskMap;
+    protected final Map<Integer, Task> taskMap;
 
-    private final HistoryManager historyManager;
+    protected final HistoryManager historyManager;
 
 
     public InMemoryTaskManager(HistoryManager historyManager) {
@@ -47,7 +53,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task addTask(Task task) {
-        task.setTaskId(++tasksNumber);
+        task.setTaskId(initId(task.getTaskId()));
         task.setStatus(Status.NEW);
         return taskMap.put(task.getTaskId(), task);
     }
@@ -80,7 +86,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public EpicTask addEpicTask(EpicTask task) {
-        task.setTaskId(++tasksNumber);
+        task.setTaskId(initId(task.getTaskId()));
         task.setStatus(Status.NEW);
 
         return epicTaskMap.put(task.getTaskId(), task);
@@ -137,7 +143,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public SubTask addSubTask(SubTask task) {
-        task.setTaskId(++tasksNumber);
+        task.setTaskId(initId(task.getTaskId()));
         task.setStatus(Status.NEW);
 
         EpicTask epicTask = epicTaskMap.get(task.getHostTaskID());
@@ -193,5 +199,20 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    private int initId(int id) {
+        if (id != 0) {
+            return id;
+        }
+
+        while (mapContainsId(tasksNumber)) {
+            tasksNumber++;
+        }
+        return tasksNumber;
+    }
+
+    private boolean mapContainsId(int id) {
+        return taskMap.containsKey(id) || epicTaskMap.containsKey(id) || subTaskMap.containsKey(id);
     }
 }

@@ -1,7 +1,7 @@
-package management.history.impl;
+package managers.history.impl;
 
 import enity.Task;
-import management.history.HistoryManager;
+import managers.history.HistoryManager;
 
 import java.util.*;
 
@@ -85,7 +85,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             if (Objects.equals(headNode, node)) {
                 head = head.next;
                 head.prev = null;
-            } else if (Objects.equals(tailNode, node)) {
+            } else if (tail != null && Objects.equals(tailNode, node)) {
                 tail = tail.prev;
                 tail.next = null;
             } else {
@@ -114,14 +114,14 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
-        Node node = nodeMap.getOrDefault(task.getTaskId(), new Node(task));
+        Node node = nodeMap.get(task.getTaskId());
 
-        if (nodeMap.containsKey(task.getTaskId())) {
+        if (nodeMap.containsKey(task.getTaskId()) && node != null) {
             remove(task.getTaskId());
             history.linkLast(node);
             nodeMap.put(task.getTaskId(), node);
         } else {
-            history.linkLast(node);
+            history.linkLast(new Node(task));
             nodeMap.put(task.getTaskId(), node);
 
             if (history.size() > 10) {
@@ -139,33 +139,4 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
 
-    public static void main(String[] args) {
-        InMemoryHistoryManager historyManager = new InMemoryHistoryManager();
-
-        for (int i = 1; i < 20; i++) {
-            Task task = new Task("task_" + i, "desc");
-            task.setTaskId(i);
-            historyManager.add(task);
-        }
-
-        historyManager.getHistory().forEach(System.out::println);
-        System.out.println("-------------------------");
-
-        Task task15 = new Task("task_" + 15, "desc");
-        task15.setTaskId(15);
-        Task task19 = new Task("task_" + 19, "desc");
-        task19.setTaskId(19);
-        Task task13 = new Task("task_" + 13, "desc");
-        task13.setTaskId(13);
-        historyManager.add(task19);
-        historyManager.add(task15);
-        historyManager.add(task13);
-
-
-        for (Task t: history) {
-            System.out.println(t);
-        }
-
-
-    }
 }

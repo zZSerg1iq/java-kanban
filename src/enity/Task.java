@@ -21,6 +21,14 @@ public class Task {
         typeFieldInit();
     }
 
+    public Task(int taskId, TaskType type, String taskName, String taskDescription, Status status) {
+        this.taskId = taskId;
+        this.type = type;
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.status = status;
+    }
+
     private void typeFieldInit() {
         String className = this.getClass().getName();
 
@@ -75,13 +83,11 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
-                "taskId=" + taskId +
-                ", type=" + type +
-                ", taskName='" + taskName + '\'' +
-                ", taskDescription='" + taskDescription + '\'' +
-                ", status=" + status +
-                '}';
+        return TaskType.REGULAR.name()+ ","
+                + this.getTaskId()+ ","
+                + this.getTaskName()+ ","
+                + this.getStatus()+ ","
+                + getTaskDescription();
     }
 
     @Override

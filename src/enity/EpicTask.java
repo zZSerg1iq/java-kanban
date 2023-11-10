@@ -1,6 +1,7 @@
 package enity;
 
 import enity.task.status.Status;
+import enity.task.type.TaskType;
 
 import java.util.LinkedList;
 import java.util.Objects;
@@ -11,6 +12,12 @@ public class EpicTask extends Task {
 
     public EpicTask(String taskName, String taskDescription) {
         super(taskName, taskDescription);
+
+        subTaskList = new LinkedList<>();
+    }
+
+    public EpicTask(int taskId, TaskType type, String taskName, String taskDescription, Status status) {
+        super(taskId, type, taskName, taskDescription, status);
 
         subTaskList = new LinkedList<>();
     }
@@ -65,11 +72,10 @@ public class EpicTask extends Task {
 
     @Override
     public String toString() {
-        return "EpicTask{" +
-                "taskId="+this.getTaskId()+
-                ", name="+this.getTaskName()+
-                ", status="+this.getStatus()+
-                ", subTaskList=" + subTaskList +
-                '}';
+        return TaskType.EPIC.name()+ ","
+                + this.getTaskId()+ ","
+                + this.getTaskName()+ ","
+                + this.getStatus()+ ","
+                + getTaskDescription();
     }
 }

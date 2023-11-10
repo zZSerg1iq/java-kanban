@@ -1,4 +1,4 @@
-package management.history;
+package managers.history;
 
 import enity.Task;
 

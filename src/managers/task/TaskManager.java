@@ -1,8 +1,9 @@
-package management.task;
+package managers.task;
 
 import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
+
 import java.util.List;
 
 
@@ -34,4 +35,8 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
+    /**
+     * временный метод, для внутренних тестов
+     */
+    void test();
 }
