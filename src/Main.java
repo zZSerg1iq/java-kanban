@@ -14,7 +14,7 @@ public class Main {
     private final static int TASK_COUNT = 50;
 
     public static void main(String[] args) {
-        var manager = Managers.loadFromFile(new File("d:/1.txt"));
+        var manager = Managers.loadFromFile(new File("resources/tasks"));
 
         //new Main().setUpValues(manager);
         new Main().getTest(manager);

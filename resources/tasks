@@ -1,0 +1,49 @@
+REGULAR,32,task_32,NEW,desc
+REGULAR,33,task_33,NEW,desc
+REGULAR,36,task_36,NEW,desc
+REGULAR,100,task_100,NEW,desc
+REGULAR,5,task_5,NEW,desc
+REGULAR,6,task_6,NEW,desc
+REGULAR,38,task_38,NEW,desc
+REGULAR,41,task_41,NEW,desc
+REGULAR,10,task_10,NEW,desc
+REGULAR,42,task_42,NEW,desc
+REGULAR,44,task_44,NEW,desc
+REGULAR,48,task_48,NEW,desc
+REGULAR,49,task_49,NEW,desc
+REGULAR,20,task_20,NEW,desc
+REGULAR,22,task_22,NEW,desc
+REGULAR,23,task_23,NEW,desc
+REGULAR,25,task_25,NEW,desc
+REGULAR,26,task_26,NEW,desc
+REGULAR,29,task_29,NEW,desc
+REGULAR,31,task_31,NEW,desc
+EPIC,2,Epic_2,NEW,epic desc
+EPIC,3,Epic_3,NEW,epic desc
+EPIC,7,Epic_7,NEW,epic desc
+EPIC,39,Epic_39,NEW,epic desc
+EPIC,8,Epic_8,NEW,epic desc
+EPIC,24,Epic_24,NEW,epic desc
+EPIC,12,Epic_12,NEW,epic desc
+EPIC,14,Epic_14,NEW,epic desc
+EPIC,30,Epic_30,NEW,epic desc
+EPIC,46,Epic_46,NEW,epic desc
+SUB,34,Sub_34,NEW,sub desc,8
+SUB,35,Sub_35,NEW,sub desc,2
+SUB,4,Sub_4,NEW,sub desc,3
+SUB,37,Sub_37,NEW,sub desc,3
+SUB,40,Sub_40,NEW,sub desc,8
+SUB,9,Sub_9,NEW,sub desc,7
+SUB,11,Sub_11,NEW,sub desc,2
+SUB,43,Sub_43,NEW,sub desc,24
+SUB,13,Sub_13,NEW,sub desc,7
+SUB,45,Sub_45,NEW,sub desc,24
+SUB,15,Sub_15,NEW,sub desc,12
+SUB,47,Sub_47,NEW,sub desc,24
+SUB,16,Sub_16,NEW,sub desc,7
+SUB,17,Sub_17,NEW,sub desc,12
+SUB,18,Sub_18,NEW,sub desc,7
+SUB,19,Sub_19,NEW,sub desc,2
+SUB,21,Sub_21,NEW,sub desc,14
+SUB,27,Sub_27,NEW,sub desc,24
+SUB,28,Sub_28,NEW,sub desc,14

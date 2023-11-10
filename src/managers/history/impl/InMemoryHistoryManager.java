@@ -9,9 +9,9 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     static class CustomLinkedList implements Iterable<Task> {
 
-        private Node head;
-        private Node tail;
-        private int size;
+        Node head;
+        Node tail;
+        int size;
 
 
         @Override
@@ -29,8 +29,8 @@ public class InMemoryHistoryManager implements HistoryManager {
                     if (currentNode == null) {
                         throw new NoSuchElementException();
                     }
-                    Task task = currentNode.task;
-                    currentNode = currentNode.next;
+                    Task task = currentNode.getTask();
+                    currentNode = currentNode.getNext();
                     return task;
                 }
             };
@@ -43,22 +43,22 @@ public class InMemoryHistoryManager implements HistoryManager {
         public void removeFirst() {
             if (head != null) {
                 Node currentHead = head;
-                head = currentHead.next;
+                head = currentHead.getNext();
                 if (head != null) {
-                    head.prev = null;
+                    head.setPrev(null);
                 }
             }
         }
 
         public void linkLast(Node newNode) {
-            newNode.next = null;
+            newNode.setNext(null);
 
             if (tail == null) {
                 head = newNode;
                 tail = newNode;
             } else {
-                newNode.prev = tail;
-                tail.next = newNode;
+                newNode.setPrev(tail);
+                tail.setNext(newNode);
                 tail = newNode;
             }
             size++;
@@ -68,8 +68,8 @@ public class InMemoryHistoryManager implements HistoryManager {
             List<Task> taskList = new ArrayList<>();
             Node current = head;
             while (current != null) {
-                taskList.add(current.task);
-                current = current.next;
+                taskList.add(current.getTask());
+                current = current.getNext();
             }
             return taskList;
         }
@@ -83,14 +83,14 @@ public class InMemoryHistoryManager implements HistoryManager {
             Node tailNode = tail;
 
             if (Objects.equals(headNode, node)) {
-                head = head.next;
-                head.prev = null;
+                head = head.getNext();
+                head.setPrev(null);
             } else if (tail != null && Objects.equals(tailNode, node)) {
-                tail = tail.prev;
-                tail.next = null;
+                tail = tail.getPrev();
+                tail.setNext(null);
             } else {
-                node.prev.next = node.next;
-                node.next.prev = node.prev;
+                node.getPrev().setNext(node.getNext());
+                node.getNext().setPrev(node.getPrev());
             }
 
             size--;

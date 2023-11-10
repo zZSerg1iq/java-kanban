@@ -80,6 +80,66 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return current;
     }
 
+    @Override
+    public Task updateTask(Task task) {
+        return super.updateTask(task);
+    }
+
+    @Override
+    public EpicTask updateEpicTask(EpicTask newEpic) {
+        var epic = super.updateEpicTask(newEpic);
+        save();
+        return epic;
+    }
+
+    @Override
+    public SubTask updateSubTask(SubTask task) {
+        var sub = super.updateSubTask(task);
+        save();
+        return sub;
+    }
+
+
+    @Override
+    public Task removeTask(int taskId) {
+        var task = super.removeTask(taskId);
+        save();
+        return task;
+    }
+
+    @Override
+    public void removeAllTasks() {
+        super.removeAllTasks();
+    }
+
+    @Override
+    public EpicTask removeEpicTask(int taskId) {
+        var task = super.removeEpicTask(taskId);
+        save();
+        return task;
+    }
+
+    @Override
+    public void removeAllEpicTasks() {
+        super.removeAllEpicTasks();
+        save();
+    }
+
+    @Override
+    public SubTask removeSubTask(int taskId) {
+        var task = super.removeSubTask(taskId);
+        save();
+        return task;
+    }
+
+    @Override
+    public void removeAllSubtasks() {
+        super.removeAllSubtasks();
+        save();
+    }
+
+
+
     /**
      * Не было четких указаний как именно надо делать бэк, я решил, делать в двух разных файлах.
      */
@@ -124,15 +184,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
         switch (type) {
             case REGULAR: {
-                taskMap.put(id, new Task(id, type, name, desc, status));
+                taskMap.put(id, new Task(id, name, desc, status));
                 break;
             }
             case EPIC: {
-                epicTaskMap.put(id, new EpicTask(id, type, name, desc, status));
+                epicTaskMap.put(id, new EpicTask(id, name, desc, status));
                 break;
             }
             case SUB: {
-                subTaskMap.put(id, new SubTask(id, type, name, desc, status, hostId));
+                subTaskMap.put(id, new SubTask(id, name, desc, status, hostId));
             }
         }
     }
