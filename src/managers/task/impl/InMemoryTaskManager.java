@@ -4,27 +4,23 @@ import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
 import enity.task.status.Status;
+import excepton.ValidateDateTimeException;
 import managers.history.HistoryManager;
 import managers.task.TaskManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 public class InMemoryTaskManager implements TaskManager {
-    @Override
-    public void test() {
-        epicTaskMap.forEach((integer, epicTask) -> System.out.println(epicTask));
-        subTaskMap.forEach((integer, epicTask) -> System.out.println(epicTask));
-        taskMap.forEach((integer, epicTask) -> System.out.println(epicTask));
-    }
 
     private int tasksNumber = 0;
     protected final Map<Integer, EpicTask> epicTaskMap;
     protected final Map<Integer, SubTask> subTaskMap;
     protected final Map<Integer, Task> taskMap;
+    private final Set<Task> sortedTaskList;
+    private Map<String, Task> taskDaTimeMap;
 
     protected final HistoryManager historyManager;
 
@@ -34,6 +30,8 @@ public class InMemoryTaskManager implements TaskManager {
         taskMap = new HashMap<>();
         epicTaskMap = new HashMap<>();
         subTaskMap = new HashMap<>();
+        taskDaTimeMap = new HashMap<>();
+        sortedTaskList = new TreeSet<>();
     }
 
     @Override
@@ -53,8 +51,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task addTask(Task task) {
+        if (task == null || task.getClass() != Task.class) {
+            throw new NullPointerException("Task is not valid");
+        }
+
+        addTaskDateTime(task);
+
         task.setTaskId(initId(task.getTaskId()));
         task.setStatus(Status.NEW);
+
+        sortedTaskList.add(task);
         return taskMap.put(task.getTaskId(), task);
     }
 
@@ -68,6 +74,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task updateTask(Task task) {
+        if (task == null || task.getClass() != Task.class) {
+            throw new NullPointerException("Task is not valid");
+        }
+
+        addTaskDateTime(task);
+
         if (taskMap.containsKey(task.getTaskId())) {
             return taskMap.put(task.getTaskId(), task);
         }
@@ -76,19 +88,34 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task removeTask(int taskId) {
-        return taskMap.remove(taskId);
+        Task task = taskMap.remove(taskId);
+
+        if (task != null) {
+            sortedTaskList.remove(task);
+            historyManager.remove(task.getTaskId());
+            removeTaskDateTime(task);
+        }
+        return task;
     }
 
     @Override
     public void removeAllTasks() {
+        for (Task task : taskMap.values()) {
+            sortedTaskList.remove(task);
+            historyManager.remove(task.getTaskId());
+            removeTaskDateTime(task);
+        }
         taskMap.clear();
     }
 
     @Override
     public EpicTask addEpicTask(EpicTask task) {
+        if (task == null || task.getClass() != EpicTask.class) {
+            throw new NullPointerException("Epic task is not valid");
+        }
+
         task.setTaskId(initId(task.getTaskId()));
         task.setStatus(Status.NEW);
-
         return epicTaskMap.put(task.getTaskId(), task);
     }
 
@@ -101,14 +128,19 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public EpicTask updateEpicTask(EpicTask newEpic) {
-        EpicTask oldEpic = epicTaskMap.get(newEpic.getTaskId());
+    public EpicTask updateEpicTask(EpicTask task) {
+        if (task == null || task.getClass() != EpicTask.class) {
+            throw new NullPointerException("Epic task is not valid");
+        }
+
+
+        EpicTask oldEpic = epicTaskMap.get(task.getTaskId());
         if (oldEpic != null) {
-            epicTaskMap.put(newEpic.getTaskId(), newEpic);
-            newEpic.resetStatus();
+            epicTaskMap.put(task.getTaskId(), task);
+            task.resetStatus();
             return oldEpic;
         }
-        throw new RuntimeException("Task " + newEpic + " not found");
+        throw new RuntimeException("Task " + task + " not found");
     }
 
     @Override
@@ -127,22 +159,41 @@ public class InMemoryTaskManager implements TaskManager {
         if (epicTask != null) {
             var subTaskList = epicTask.getSubTaskList();
             for (SubTask subtask : subTaskList) {
-                subTaskList.remove(subtask.getTaskId());
+                subTaskMap.remove(subtask.getTaskId());
+                sortedTaskList.remove(subtask);
+                historyManager.remove(subtask.getTaskId());
             }
             epicTaskMap.remove(taskId);
         }
         return epicTask;
     }
 
+
     @Override
     public void removeAllEpicTasks() {
-        for (Integer ID : epicTaskMap.keySet()) {
-            removeEpicTask(ID);
+        Iterator<EpicTask> iterator = epicTaskMap.values().iterator();
+
+        while (iterator.hasNext()) {
+            EpicTask epicTask = iterator.next();
+            var subTaskList = epicTask.getSubTaskList();
+
+            for (SubTask subtask : subTaskList) {
+                subTaskMap.remove(subtask.getTaskId());
+                subTaskMap.remove(subtask.getTaskId());
+                historyManager.remove(subtask.getTaskId());
+            }
+            iterator.remove();
         }
     }
 
     @Override
     public SubTask addSubTask(SubTask task) {
+        if (task == null || task.getClass() != SubTask.class) {
+            throw new NullPointerException("SubTask task is not valid");
+        }
+
+        addTaskDateTime(task);
+
         task.setTaskId(initId(task.getTaskId()));
         task.setStatus(Status.NEW);
 
@@ -154,6 +205,7 @@ public class InMemoryTaskManager implements TaskManager {
             throw new RuntimeException("Host class for task " + task + " not found");
         }
 
+        sortedTaskList.add(task);
         return subTaskMap.put(task.getTaskId(), task);
     }
 
@@ -167,6 +219,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public SubTask updateSubTask(SubTask task) {
+        if (task == null || task.getClass() != SubTask.class) {
+            throw new NullPointerException("SubTask task is not valid");
+        }
+
+        addTaskDateTime(task);
+
         if (subTaskMap.containsKey(task.getTaskId())) {
             SubTask subTask = subTaskMap.put(task.getTaskId(), task);
             epicTaskMap.get(task.getHostTaskID()).resetStatus();
@@ -178,11 +236,16 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask removeSubTask(int taskId) {
         SubTask subTask = subTaskMap.get(taskId);
+
         if (subTask != null) {
             EpicTask epicTask = epicTaskMap.get(subTask.getHostTaskID());
-            epicTask.subTaskRemove(subTask);
-            epicTask.resetStatus();
-            subTaskMap.remove(taskId);
+            if (epicTask != null) {
+                epicTask.subTaskRemove(subTask);
+                epicTask.resetStatus();
+                sortedTaskList.remove(subTask);
+                historyManager.remove(subTask.getTaskId());
+                removeTaskDateTime(subTask);
+            }
         }
 
         return subTask;
@@ -190,8 +253,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void removeAllSubtasks() {
-        for (Integer ID : subTaskMap.keySet()) {
-            removeSubTask(ID);
+        for (Integer id : subTaskMap.keySet()) {
+            removeSubTask(id);
+            historyManager.remove(id);
+            removeTaskDateTime(subTaskMap.get(id));
         }
         subTaskMap.clear();
     }
@@ -199,6 +264,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public List<Task> getHistory() {
         return historyManager.getHistory();
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(sortedTaskList);
     }
 
     private int initId(int id) {
@@ -215,4 +285,32 @@ public class InMemoryTaskManager implements TaskManager {
     private boolean mapContainsId(int id) {
         return taskMap.containsKey(id) || epicTaskMap.containsKey(id) || subTaskMap.containsKey(id);
     }
+
+    private void addTaskDateTime(Task task) {
+        LocalDateTime newTaskStartTime = task.getStartTime();
+        LocalDateTime newTaskEndTime = task.getStartTime().plusMinutes(task.getDuration());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+
+        if (taskDaTimeMap.containsKey(newTaskStartTime.format(formatter)) || taskDaTimeMap.containsKey(newTaskEndTime.format(formatter))) {
+            throw new ValidateDateTimeException("Time interval of the task '"+task.getTaskName()+"' intersects with another task");
+        } else {
+            LocalDateTime range = task.getStartTime();
+            while (range.isBefore(newTaskEndTime)) {
+                taskDaTimeMap.put(range.format(formatter), task);
+                range = range.plusMinutes(1);
+            }
+        }
+    }
+
+    private void removeTaskDateTime(Task task) {
+        Iterator<Task> iterator = taskDaTimeMap.values().iterator();
+            while (iterator.hasNext()){
+                Task current = iterator.next();
+                if (current.equals(task)){
+                    iterator.remove();
+                }
+            }
+    }
+
 }

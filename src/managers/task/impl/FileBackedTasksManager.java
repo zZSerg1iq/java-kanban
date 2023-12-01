@@ -9,6 +9,8 @@ import excepton.ManagerSaveException;
 import managers.history.HistoryManager;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -108,11 +110,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void removeAllTasks() {
-        super.removeAllTasks();
-    }
-
-    @Override
     public EpicTask removeEpicTask(int taskId) {
         var task = super.removeEpicTask(taskId);
         save();
@@ -137,7 +134,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super.removeAllSubtasks();
         save();
     }
-
 
 
     /**
@@ -166,33 +162,53 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     private void mapFromString(List<String> taskList) {
         for (String task : taskList) {
-            taskFromString(task);
+            if (!task.isEmpty() & !task.isBlank()) {
+                taskFromString(task);
+            }
         }
     }
 
     private void taskFromString(String taskString) {
         String[] temp = taskString.split(",");
+
         TaskType type = TaskType.valueOf(temp[0]);
         int id = Integer.parseInt(temp[1]);
         String name = temp[2];
         Status status = Status.valueOf(temp[3]);
         String desc = temp[4];
+
+        LocalDateTime startTime = null;
+        if (!temp[5].equals("null")) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            startTime = LocalDateTime.parse(temp[5], formatter);
+        }
+        int duration = Integer.parseInt(temp[6]);
+
+
         int hostId = 0;
-        if (temp.length == 6) {
-            hostId = Integer.parseInt(temp[5]);
+        if (temp.length == 8) {
+            hostId = Integer.parseInt(temp[7]);
         }
 
         switch (type) {
             case REGULAR: {
-                taskMap.put(id, new Task(id, name, desc));
+                taskMap.put(id, new Task(id, name, status, desc, startTime, duration));
                 break;
             }
             case EPIC: {
-                epicTaskMap.put(id, new EpicTask(id, name, desc));
+                EpicTask epicTask = new EpicTask(id, name, status, desc);
+                epicTask.resetStatus();
+                epicTaskMap.put(id, epicTask);
                 break;
             }
             case SUB: {
-                subTaskMap.put(id, new SubTask(id, name, desc, hostId));
+                EpicTask epicTask = epicTaskMap.get(hostId);
+                if (epicTask != null) {
+                    SubTask subTask = new SubTask(id, name, status, desc, startTime, duration, hostId);
+                    subTaskMap.put(id, subTask);
+                    epicTask.addSubTask(subTask);
+                    epicTask.resetStatus();
+                }
             }
         }
     }
@@ -240,7 +256,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     .map(Task::getTaskId)
                     .map(String::valueOf)
                     .collect(Collectors.joining(","));
-        }
+       }
 
         static void init(FileBackedTasksManager manager, List<Integer> indexes) {
             for (Integer index : indexes) {

@@ -35,8 +35,6 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
-    /**
-     * временный метод, для внутренних тестов
-     */
-    void test();
+    List<Task> getPrioritizedTasks();
+
 }
