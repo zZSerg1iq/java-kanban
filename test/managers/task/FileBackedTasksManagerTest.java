@@ -8,6 +8,7 @@ import managers.Managers;
 import managers.task.impl.FileBackedTasksManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,14 +31,16 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
 
     @Test
     public void bothFileShouldBeACorrectlyWrote() {
-        /**
+         /**
          * проверка файла тасков
          */
         //добавляю несколько задач, проверяю корректность записи файла
+        Task tempTask = generateRandomTask(null);
         List<Task> taskList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            taskList.add(generateTask());
-            taskManager.addTask(taskList.get(i));
+            Task newTask = generateRandomTask(tempTask);
+            taskList.add(newTask);
+            taskManager.addTask(newTask);
         }
         Assertions.assertTrue(readTaskBackedFile(taskList));
 
@@ -57,12 +60,14 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         for (int i = 0; i < 5; i++) {
             int subCount = random.nextInt(10) + 1;
             EpicTask epicTask = epicTasks.get(i);
+            SubTask tempSub = generateSubTask(null, epicTask.getTaskId());
 
             for (int j = 0; j < subCount; j++) {
-                SubTask subTask = generateSubTask(epicTask.getTaskId());
+                SubTask subTask = generateSubTask(tempSub, epicTask.getTaskId());
                 subTasks.add(subTask);
                 taskList.add(subTask);
                 taskManager.addSubTask(subTask);
+                tempSub = subTask;
             }
 
         }
@@ -92,6 +97,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         Assertions.assertTrue(readTaskBackedFile(taskList));
 
 
+
         /**
          * проверка файла истории
          */
@@ -115,7 +121,6 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
                 String s = bufferedReader.readLine();
                 if (!s.isEmpty() && !s.isBlank()) {
                     if (!s.equals(taskList.get(line).toString())) {
-                        //System.out.println(s + "  |  " + taskList.get(line).toString());
                         return false;
                     }
                     line++;

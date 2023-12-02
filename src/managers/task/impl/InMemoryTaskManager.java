@@ -20,7 +20,7 @@ public class InMemoryTaskManager implements TaskManager {
     protected final Map<Integer, SubTask> subTaskMap;
     protected final Map<Integer, Task> taskMap;
     private final Set<Task> sortedTaskList;
-    private Map<String, Task> taskDaTimeMap;
+    private final Map<String, Task> taskDaTimeMap;
 
     protected final HistoryManager historyManager;
 
@@ -36,17 +36,32 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<EpicTask> getEpicTaskList() {
-        return new ArrayList<>(epicTaskMap.values());
+        ArrayList<EpicTask> resultList = new ArrayList<>();
+
+        for (var value: epicTaskMap.values() ) {
+            resultList.add(getEpicTask(value.getTaskId()));
+        }
+        return resultList;
     }
 
     @Override
     public List<Task> getTaskList() {
-        return new ArrayList<>(taskMap.values());
+        ArrayList<Task> resultList = new ArrayList<>();
+
+        for (var value: taskMap.values() ) {
+            resultList.add(getTask(value.getTaskId()));
+        }
+        return resultList;
     }
 
     @Override
     public List<SubTask> getSubtaskList() {
-        return new ArrayList<>(subTaskMap.values());
+        ArrayList<SubTask> resultList = new ArrayList<>();
+
+        for (var value: subTaskMap.values() ) {
+            resultList.add(getSubTask(value.getTaskId()));
+        }
+        return resultList;
     }
 
     @Override
@@ -69,7 +84,13 @@ public class InMemoryTaskManager implements TaskManager {
         if (taskMap.containsKey(taskId)) {
             historyManager.add(taskMap.get(taskId));
         }
-        return taskMap.get(taskId);
+
+        Task task = taskMap.get(taskId);
+
+        if (task != null){
+            return new Task(task);
+        }
+        return null;
     }
 
     @Override
@@ -78,9 +99,8 @@ public class InMemoryTaskManager implements TaskManager {
             throw new NullPointerException("Task is not valid");
         }
 
-        addTaskDateTime(task);
-
         if (taskMap.containsKey(task.getTaskId())) {
+            updateTaskDateTime(task);
             return taskMap.put(task.getTaskId(), task);
         }
         throw new RuntimeException("Task " + task + " not found");
@@ -113,9 +133,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (task == null || task.getClass() != EpicTask.class) {
             throw new NullPointerException("Epic task is not valid");
         }
-
-        task.setTaskId(initId(task.getTaskId()));
         task.setStatus(Status.NEW);
+        task.setTaskId(initId(task.getTaskId()));
         return epicTaskMap.put(task.getTaskId(), task);
     }
 
@@ -124,7 +143,12 @@ public class InMemoryTaskManager implements TaskManager {
         if (epicTaskMap.containsKey(taskId)) {
             historyManager.add(epicTaskMap.get(taskId));
         }
-        return epicTaskMap.get(taskId);
+
+        EpicTask epicTask = epicTaskMap.get(taskId);
+        if (epicTask != null){
+            return new EpicTask(epicTask);
+        }
+        return null;
     }
 
     @Override
@@ -132,7 +156,6 @@ public class InMemoryTaskManager implements TaskManager {
         if (task == null || task.getClass() != EpicTask.class) {
             throw new NullPointerException("Epic task is not valid");
         }
-
 
         EpicTask oldEpic = epicTaskMap.get(task.getTaskId());
         if (oldEpic != null) {
@@ -162,6 +185,7 @@ public class InMemoryTaskManager implements TaskManager {
                 subTaskMap.remove(subtask.getTaskId());
                 sortedTaskList.remove(subtask);
                 historyManager.remove(subtask.getTaskId());
+                removeTaskDateTime(subtask);
             }
             epicTaskMap.remove(taskId);
         }
@@ -181,6 +205,7 @@ public class InMemoryTaskManager implements TaskManager {
                 subTaskMap.remove(subtask.getTaskId());
                 subTaskMap.remove(subtask.getTaskId());
                 historyManager.remove(subtask.getTaskId());
+                removeTaskDateTime(subtask);
             }
             iterator.remove();
         }
@@ -214,7 +239,12 @@ public class InMemoryTaskManager implements TaskManager {
         if (subTaskMap.containsKey(taskId)) {
             historyManager.add(subTaskMap.get(taskId));
         }
-        return subTaskMap.get(taskId);
+
+        SubTask subTask = subTaskMap.get(taskId);
+        if (subTask != null){
+            return new SubTask(subTask);
+        }
+        return null;
     }
 
     @Override
@@ -223,13 +253,14 @@ public class InMemoryTaskManager implements TaskManager {
             throw new NullPointerException("SubTask task is not valid");
         }
 
-        addTaskDateTime(task);
-
         if (subTaskMap.containsKey(task.getTaskId())) {
+            updateTaskDateTime(task);
+
             SubTask subTask = subTaskMap.put(task.getTaskId(), task);
             epicTaskMap.get(task.getHostTaskID()).resetStatus();
             return subTask;
         }
+
         throw new RuntimeException("Task " + task + " not found");
     }
 
@@ -286,14 +317,18 @@ public class InMemoryTaskManager implements TaskManager {
         return taskMap.containsKey(id) || epicTaskMap.containsKey(id) || subTaskMap.containsKey(id);
     }
 
-    private void addTaskDateTime(Task task) {
+    private void addTaskDateTime(Task task){
         LocalDateTime newTaskStartTime = task.getStartTime();
         LocalDateTime newTaskEndTime = task.getStartTime().plusMinutes(task.getDuration());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
 
         if (taskDaTimeMap.containsKey(newTaskStartTime.format(formatter)) || taskDaTimeMap.containsKey(newTaskEndTime.format(formatter))) {
-            throw new ValidateDateTimeException("Time interval of the task '"+task.getTaskName()+"' intersects with another task");
+            if (taskDaTimeMap.containsKey(newTaskStartTime.format(formatter))){
+                throw new ValidateDateTimeException("Time interval of the task '"+task+"' intersects with another task: " + taskDaTimeMap.get(newTaskStartTime.format(formatter)));
+            }
+            throw new ValidateDateTimeException("Time interval of the task '"+task+"' intersects with another task: " + taskDaTimeMap.get(newTaskEndTime.format(formatter)));
+
         } else {
             LocalDateTime range = task.getStartTime();
             while (range.isBefore(newTaskEndTime)) {
@@ -303,7 +338,34 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    private void updateTaskDateTime(Task task) {
+        Task oldTask;
+        if (task.getClass().equals(Task.class)){
+            oldTask = taskMap.get(task.getTaskId());
+        } else {
+            oldTask = subTaskMap.get(task.getTaskId());
+        }
+
+        removeTaskDateTime(oldTask);
+
+        LocalDateTime newTaskStartTime = task.getStartTime();
+        LocalDateTime newTaskEndTime = task.getStartTime().plusMinutes(task.getDuration());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+
+        if (taskDaTimeMap.containsKey(newTaskStartTime.format(formatter)) || taskDaTimeMap.containsKey(newTaskEndTime.format(formatter))) {
+            addTaskDateTime(oldTask);
+            throw new ValidateDateTimeException("Time interval of the task '"+task.getTaskName()+"' intersects with another task");
+        } else {
+            addTaskDateTime(task);
+        }
+
+    }
+
+
     private void removeTaskDateTime(Task task) {
+        if (task == null){
+            return;
+        }
         Iterator<Task> iterator = taskDaTimeMap.values().iterator();
             while (iterator.hasNext()){
                 Task current = iterator.next();

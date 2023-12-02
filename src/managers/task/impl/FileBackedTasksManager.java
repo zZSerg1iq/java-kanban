@@ -196,7 +196,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 break;
             }
             case EPIC: {
-                EpicTask epicTask = new EpicTask(id, name, status, desc);
+                EpicTask epicTask = new EpicTask(id, name, desc);
                 epicTask.resetStatus();
                 epicTaskMap.put(id, epicTask);
                 break;

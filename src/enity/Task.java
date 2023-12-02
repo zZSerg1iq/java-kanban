@@ -47,6 +47,16 @@ public class Task implements Comparable<Task> {
         typeFieldInit();
     }
 
+    public Task(Task task) {
+        this.taskId = task.getTaskId();
+        this.taskName = task.getTaskName();
+        this.status = task.getStatus();
+        this.taskDescription = task.getTaskDescription();
+        this.startTime = task.getStartTime();
+        this.duration = task.getDuration();
+        typeFieldInit();
+    }
+
     private void typeFieldInit() {
         String className = this.getClass().getName();
 

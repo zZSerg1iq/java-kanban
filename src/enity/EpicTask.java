@@ -5,6 +5,7 @@ import enity.task.type.TaskType;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -27,10 +28,18 @@ public class EpicTask extends Task {
         subTaskList = new LinkedList<>();
     }
 
-    public EpicTask(int taskId, String taskName, Status status, String taskDescription) {
-        super(taskId, taskName, status, taskDescription, null, 0);
+
+    public EpicTask(int taskId, String taskName, String taskDescription) {
+        super(taskId, taskName, Status.NEW, taskDescription, null, 0);
 
         subTaskList = new LinkedList<>();
+    }
+
+    public EpicTask(EpicTask epicTask) {
+        super(epicTask.getTaskId(), epicTask.getTaskName(), null, epicTask.getTaskDescription(), null, 0);
+
+        subTaskList = new LinkedList<>(epicTask.getSubTaskList());
+        resetStatus();
     }
 
     public void addSubTask(SubTask subTask) {
@@ -48,7 +57,12 @@ public class EpicTask extends Task {
     }
 
     public LinkedList<SubTask> getSubTaskList() {
-        return subTaskList;
+        LinkedList<SubTask> resultList = new LinkedList<>();
+
+        for (SubTask subTask: subTaskList) {
+            resultList.add(new SubTask(subTask));
+        }
+        return resultList;
     }
 
     @Override
