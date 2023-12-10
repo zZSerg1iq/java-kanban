@@ -1,4 +1,4 @@
-package enity.task.type;
+package enums;
 
 public enum TaskType {
     EPIC,

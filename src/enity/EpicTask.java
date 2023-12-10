@@ -1,11 +1,10 @@
 package enity;
 
-import enity.task.status.Status;
-import enity.task.type.TaskType;
+import enums.Status;
+import enums.TaskType;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -38,8 +37,15 @@ public class EpicTask extends Task {
     public EpicTask(EpicTask epicTask) {
         super(epicTask.getTaskId(), epicTask.getTaskName(), null, epicTask.getTaskDescription(), null, 0);
 
-        subTaskList = new LinkedList<>(epicTask.getSubTaskList());
+        subTaskList = new LinkedList<>();
+
+        for (SubTask s: epicTask.getSubTaskList() ) {
+            SubTask subTask = new SubTask(s);
+            addSubTask(subTask);
+        }
+
         resetStatus();
+        updateDateTime();
     }
 
     public void addSubTask(SubTask subTask) {
@@ -57,12 +63,7 @@ public class EpicTask extends Task {
     }
 
     public LinkedList<SubTask> getSubTaskList() {
-        LinkedList<SubTask> resultList = new LinkedList<>();
-
-        for (SubTask subTask: subTaskList) {
-            resultList.add(new SubTask(subTask));
-        }
-        return resultList;
+        return new LinkedList<>(subTaskList);
     }
 
     @Override
@@ -128,6 +129,19 @@ public class EpicTask extends Task {
             setStatus(Status.NEW);
         }
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EpicTask epicTask = (EpicTask) o;
+        return totalDuration == epicTask.totalDuration && lastDuration == epicTask.lastDuration && Objects.equals(mostEarliestDate, epicTask.mostEarliestDate) && Objects.equals(mostLatestDate, epicTask.mostLatestDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), mostEarliestDate, mostLatestDate, totalDuration, lastDuration);
     }
 
     @Override

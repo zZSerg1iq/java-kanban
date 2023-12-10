@@ -3,7 +3,7 @@ package managers.task.impl;
 import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
-import enity.task.status.Status;
+import enums.Status;
 import excepton.ValidateDateTimeException;
 import managers.history.HistoryManager;
 import managers.task.TaskManager;
@@ -15,7 +15,7 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private int tasksNumber = 0;
+    private int tasksNumber = 1;
     protected final Map<Integer, EpicTask> epicTaskMap;
     protected final Map<Integer, SubTask> subTaskMap;
     protected final Map<Integer, Task> taskMap;
@@ -36,32 +36,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<EpicTask> getEpicTaskList() {
-        ArrayList<EpicTask> resultList = new ArrayList<>();
-
-        for (var value: epicTaskMap.values() ) {
-            resultList.add(getEpicTask(value.getTaskId()));
-        }
-        return resultList;
+        return new ArrayList<>(epicTaskMap.values());
     }
 
     @Override
     public List<Task> getTaskList() {
-        ArrayList<Task> resultList = new ArrayList<>();
-
-        for (var value: taskMap.values() ) {
-            resultList.add(getTask(value.getTaskId()));
-        }
-        return resultList;
+        return new ArrayList<>(taskMap.values());
     }
 
     @Override
     public List<SubTask> getSubtaskList() {
-        ArrayList<SubTask> resultList = new ArrayList<>();
-
-        for (var value: subTaskMap.values() ) {
-            resultList.add(getSubTask(value.getTaskId()));
-        }
-        return resultList;
+        return new ArrayList<>(subTaskMap.values());
     }
 
     @Override
@@ -85,12 +70,12 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.add(taskMap.get(taskId));
         }
 
-        Task task = taskMap.get(taskId);
+        /*Task task = taskMap.get(taskId);
 
         if (task != null){
             return new Task(task);
-        }
-        return null;
+        }*/
+        return taskMap.get(taskId);
     }
 
     @Override
@@ -140,15 +125,17 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public EpicTask getEpicTask(int taskId) {
+
         if (epicTaskMap.containsKey(taskId)) {
             historyManager.add(epicTaskMap.get(taskId));
         }
 
-        EpicTask epicTask = epicTaskMap.get(taskId);
+       /* EpicTask epicTask = epicTaskMap.get(taskId);
+
         if (epicTask != null){
             return new EpicTask(epicTask);
-        }
-        return null;
+        }*/
+        return epicTaskMap.get(taskId);
     }
 
     @Override
@@ -176,7 +163,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public EpicTask removeEpicTask(int taskId) {
+    public EpicTask removeEpic(int taskId) {
         EpicTask epicTask = epicTaskMap.get(taskId);
 
         if (epicTask != null) {
@@ -194,7 +181,7 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public void removeAllEpicTasks() {
+    public void removeAllEpics() {
         Iterator<EpicTask> iterator = epicTaskMap.values().iterator();
 
         while (iterator.hasNext()) {
@@ -203,12 +190,12 @@ public class InMemoryTaskManager implements TaskManager {
 
             for (SubTask subtask : subTaskList) {
                 subTaskMap.remove(subtask.getTaskId());
-                subTaskMap.remove(subtask.getTaskId());
                 historyManager.remove(subtask.getTaskId());
                 removeTaskDateTime(subtask);
             }
             iterator.remove();
         }
+
     }
 
     @Override

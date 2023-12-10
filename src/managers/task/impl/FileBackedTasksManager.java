@@ -3,8 +3,8 @@ package managers.task.impl;
 import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
-import enity.task.status.Status;
-import enity.task.type.TaskType;
+import enums.Status;
+import enums.TaskType;
 import excepton.ManagerSaveException;
 import managers.history.HistoryManager;
 
@@ -14,7 +14,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -26,8 +25,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public FileBackedTasksManager(HistoryManager historyManager, String filePath) {
         super(historyManager);
 
-        this.filePath = filePath;
-        this.historyPath = filePath + ".h";
+        this.filePath = filePath+"\\tasks";
+        this.historyPath = filePath + "\\tasks.h";
+
+        load();
+    }
+
+    protected void load(){
         initTasks();
         initHistory();
     }
@@ -110,15 +114,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public EpicTask removeEpicTask(int taskId) {
-        var task = super.removeEpicTask(taskId);
+    public EpicTask removeEpic(int taskId) {
+        var task = super.removeEpic(taskId);
         save();
         return task;
     }
 
     @Override
-    public void removeAllEpicTasks() {
-        super.removeAllEpicTasks();
+    public void removeAllEpics() {
+        super.removeAllEpics();
         save();
     }
 
@@ -135,32 +139,77 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
     }
 
+    @Override
+    public Task getTask(int taskId) {
+        var temp = super.getTask(taskId);
+        save();
+        return temp;
+    }
 
-    /**
-     * Не было четких указаний как именно надо делать бэк, я решил, делать в двух разных файлах.
-     */
-    private void save() {
+    @Override
+    public void removeAllTasks() {
+        super.removeAllTasks();
+        save();
+    }
+
+    @Override
+    public EpicTask getEpicTask(int taskId) {
+        var temp = super.getEpicTask(taskId);
+        save();
+        return temp;
+    }
+
+    @Override
+    public SubTask getSubTask(int taskId) {
+        var temp = super.getSubTask(taskId);
+        save();
+        return temp;
+    }
+
+
+
+
+    protected void save() {
         saveTasks();
         HistoryFileBackInitializer.saveHistory(historyManager, historyPath);
     }
 
     private void saveTasks() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            writer.write(mapToString(taskMap) + "\n");
-            writer.write(mapToString(epicTaskMap) + "\n");
-            writer.write(mapToString(subTaskMap) + "\n");
+            writer.write(taskMapToString());
+            writer.write(epicMapToString());
+            writer.write(subtaskMapToString());
         } catch (IOException e) {
             throw new ManagerSaveException();
         }
     }
 
-    private <T extends Task> String mapToString(Map<Integer, T> taskMap) {
-        return taskMap.values().stream()
-                .map(Task::toString)
-                .collect(Collectors.joining("\n"));
+
+    protected String taskMapToString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (var task: taskMap.values()) {
+            stringBuilder.append(task.toString()).append("\n");
+        }
+        return stringBuilder.toString();
     }
 
-    private void mapFromString(List<String> taskList) {
+    protected String epicMapToString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (var task: epicTaskMap.values()) {
+            stringBuilder.append(task.toString()).append("\n");
+        }
+        return stringBuilder.toString();
+    }
+
+    protected String subtaskMapToString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (var task: subTaskMap.values()) {
+            stringBuilder.append(task.toString()).append("\n");
+        }
+        return stringBuilder.toString();
+    }
+
+    protected void mapFromString(List<String> taskList) {
         for (String task : taskList) {
             if (!task.isEmpty() & !task.isBlank()) {
                 taskFromString(task);

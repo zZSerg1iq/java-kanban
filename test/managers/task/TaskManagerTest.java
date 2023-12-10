@@ -3,7 +3,7 @@ package managers.task;
 import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
-import enity.task.status.Status;
+import enums.Status;
 import excepton.ValidateDateTimeException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -18,23 +18,11 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-/**
- * Все тесты кроме getPrioritizedTasks() были написаны ДО внесения нового функционала по добавлению пересечений.
- * Этот тест запускался отдельно, поскольку ничего конструктивного в основной код для этого не вносилось.
- * Все эксепшены сыпались из-за того, что использовались методы generateTask(), generateSubTask() использующие рандом
- * в качестве даты-времени и длительности задачи. Естественно вызывались пересечения. Я знал об этом, и знал,
- * что все исправно работает. По-сему понадеялся, что тесты не будут запускаться и я их исправлю "когда-нибудь потом".
- * Не прокатило :D  Ошибка усвоена и учтена.
- * <p>
- * Методы генерации задач и подзадач изменены на валидные, что бы не возникало пересечений по времени в тех тестах,
- * где это не требуется.
- */
-
 abstract class TaskManagerTest<T extends TaskManager> {
 
     protected T taskManager;
 
-    private int index = 0;
+    private int index = 1;
 
     private final Random random = new Random();
 
@@ -47,15 +35,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @AfterEach
     public void clearAll() {
-        taskManager.removeAllEpicTasks();
+        taskManager.removeAllEpics();
         taskManager.removeAllTasks();
         taskManager.removeAllSubtasks();
     }
 
     @Test
     void shouldBeAThreeEpicTasksWithStatusNew() {
-        taskManager.removeAllEpicTasks();
-
+        taskManager.removeAllEpics();
         int count = taskManager.getEpicTaskList().size();
 
         taskManager.addEpicTask(generateEpicTask());
@@ -118,8 +105,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addSubTask(generateSubTask(subTask3, epicTask.getTaskId()));
 
         List<SubTask> subTasks = taskManager.getSubtaskList();
+        assertEquals(count + 3, subTasks.size());
 
-        assertEquals(count + 3, taskManager.getEpicTask(epicTask.getTaskId()).getSubTaskList().size());
+        EpicTask epicTask1 = taskManager.getEpicTask(epicTask.getTaskId());
+        assertEquals(count + 3, epicTask1.getSubTaskList().size());
 
         for (Task task : subTasks) {
             assertEquals(Status.NEW, task.getStatus());
@@ -156,7 +145,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addEpicTask(generateEpicTask());
         assertEquals(subSize + 3, taskManager.getEpicTaskList().size());
 
-        taskManager.removeAllEpicTasks();
+        taskManager.removeAllEpics();
 
         assertEquals(0, taskManager.getEpicTaskList().size());
     }
@@ -277,7 +266,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         var taskList = taskManager.getEpicTaskList();
         assertTrue(taskList.contains(task));
 
-        taskManager.removeEpicTask(task.getTaskId());
+        taskManager.removeEpic(task.getTaskId());
         assertEquals(count, taskManager.getEpicTaskList().size());
 
         taskList = taskManager.getEpicTaskList();
@@ -319,7 +308,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void updateSubTaskTest() {
-        taskManager.removeAllEpicTasks();
+        taskManager.removeAllEpics();
 
         EpicTask epicTask = generateEpicTask();
         taskManager.addEpicTask(epicTask);
@@ -476,41 +465,39 @@ abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(0, list.size());
 
         //сортировка по часам
-        Task task0 = generateCurrentTask("TASK 0", 2022, 10, 10, 8, 0, 10);
-        Task task1 = generateCurrentTask("TASK 1", 2022, 10, 10, 9, 0, 10);
-        Task task2 = generateCurrentTask("TASK 2", 2022, 10, 10, 10, 0, 10);
+        Task task1 = generateCurrentTask("TASK 1", 2022, 10, 10, 8, 0, 10);
+        Task task2 = generateCurrentTask("TASK 2", 2022, 10, 10, 9, 0, 10);
+        Task task3 = generateCurrentTask("TASK 3", 2022, 10, 10, 10, 0, 10);
 
         //сортировка по дням
-        Task task3 = generateCurrentTask("TASK 3", 2022, 10, 11, 10, 0, 10);
-        Task task4 = generateCurrentTask("TASK 4", 2022, 10, 12, 10, 0, 10);
-        Task task5 = generateCurrentTask("TASK 5", 2022, 10, 13, 10, 0, 10);
+        Task task4 = generateCurrentTask("TASK 4", 2022, 10, 11, 10, 0, 10);
+        Task task5 = generateCurrentTask("TASK 5", 2022, 10, 12, 10, 0, 10);
+        Task task6 = generateCurrentTask("TASK 6", 2022, 10, 13, 10, 0, 10);
 
         //рандомное добавление задач
-        taskManager.addTask(task1);
-        taskManager.addTask(task5);
-        taskManager.addTask(task3);
-        taskManager.addTask(task4);
-        taskManager.addTask(task0);
         taskManager.addTask(task2);
+        taskManager.addTask(task6);
+        taskManager.addTask(task4);
+        taskManager.addTask(task5);
+        taskManager.addTask(task1);
+        taskManager.addTask(task3);
 
         //сверка
         list = taskManager.getPrioritizedTasks();
         assertEquals(6, list.size());
-        assertEquals(task0, list.get(0));
-        assertEquals(task1, list.get(1));
-        assertEquals(task2, list.get(2));
-        assertEquals(task3, list.get(3));
-        assertEquals(task4, list.get(4));
-        assertEquals(task5, list.get(5));
-
-
+        assertEquals(task1, list.get(0));
+        assertEquals(task2, list.get(1));
+        assertEquals(task3, list.get(2));
+        assertEquals(task4, list.get(3));
+        assertEquals(task5, list.get(4));
+        assertEquals(task6, list.get(5));
 
 
 
         //удаление некоторых задач
-        taskManager.removeTask(0);
+        taskManager.removeTask(1);
+        taskManager.removeTask(2);
         taskManager.removeTask(3);
-        taskManager.removeTask(4);
 
 
         //создание новых задач
@@ -523,9 +510,12 @@ abstract class TaskManagerTest<T extends TaskManager> {
         list = taskManager.getPrioritizedTasks();
         assertEquals(6, list.size());
 
+
+
+
         assertEquals(new1, list.get(0));
         assertEquals(new2, list.get(1));
-        assertEquals(task2, list.get(2));
+        assertEquals(task1, list.get(2));
         assertEquals(task3, list.get(3));
         assertEquals(task5, list.get(4));
         assertEquals(new3, list.get(5));
@@ -545,7 +535,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
     protected SubTask generateSubTask(SubTask task, int epicId) {
         if (task == null) {
             return new SubTask("Sub task_" + index, "sub_" + index++,
-                    getDefaultLocalDateTime(), random.nextInt(500), epicId);
+                    getDefaultLocalDateTime().plusDays(random.nextInt(1000)), random.nextInt(500), epicId);
         }
         return new SubTask(task.getTaskName() + "_new Sub task_" + index, "sub_" + index++,
                 getDefaultLocalDateTime().plusDays(random.nextInt(1000)), random.nextInt(500), epicId);

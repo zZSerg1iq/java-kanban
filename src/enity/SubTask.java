@@ -1,11 +1,10 @@
 package enity;
 
-import enity.task.status.Status;
-import enity.task.type.TaskType;
+import enums.Status;
+import enums.TaskType;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 public class SubTask extends Task{
 

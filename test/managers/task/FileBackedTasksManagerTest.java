@@ -3,12 +3,11 @@ package managers.task;
 import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
-import enity.task.status.Status;
+import enums.Status;
 import managers.Managers;
 import managers.task.impl.FileBackedTasksManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,7 +24,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
 
     @Override
     protected FileBackedTasksManager createTaskManager() {
-        return Managers.loadFromFile(new File("resources/tasks"));
+        return Managers.loadFromFile(new File("resources"));
     }
 
 

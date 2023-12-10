@@ -1,4 +1,4 @@
-package enity.task.status;
+package enums;
 
 public enum Status {
     NEW,

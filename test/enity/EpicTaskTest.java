@@ -1,6 +1,6 @@
 package enity;
 
-import enity.task.status.Status;
+import enums.Status;
 import managers.Managers;
 import managers.task.TaskManager;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,6 +11,7 @@ import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,23 +19,19 @@ class EpicTaskTest {
 
     private static TaskManager manager;
     private static EpicTask epicTask;
+    private int index = 1;
+    private Random random = new Random();
 
 
     @BeforeAll
     static void setUp() {
-        manager = Managers.loadFromFile(new File("resources/tasks"));
+        manager = Managers.loadFromFile(new File("resources"));
     }
 
     @BeforeEach
     public void addNewEpicForTest() {
         epicTask = new EpicTask("New Epic", "Epic");
         manager.addEpicTask(epicTask);
-    }
-
-    private LocalDateTime getDefaultLocalDateTime() {
-        LocalDate date = LocalDate.of(2023, 11, 27);
-        LocalTime time = LocalTime.of(12, 30, 0);
-        return LocalDateTime.of(date, time);
     }
 
     @Test
@@ -44,18 +41,22 @@ class EpicTaskTest {
 
     @Test
     void shouldBeNewStatusWhenAllSubTaskIsNEW() {
-        SubTask subTask1 = new SubTask("Sub task1", "sub 1", getDefaultLocalDateTime(), 50, epicTask.getTaskId());
-        SubTask subTask2 = new SubTask("Sub task2", "sub 2", getDefaultLocalDateTime(), 20, epicTask.getTaskId());
+        SubTask subTask1 = generateCurrentSubTask("Sub task1",  2020, 1,1,1,1,1, epicTask.getTaskId());
+        SubTask subTask2 = generateCurrentSubTask("Sub task2",  2022, 1,1,1,1,1, epicTask.getTaskId());
         manager.addSubTask(subTask1);
         manager.addSubTask(subTask2);
 
         assertEquals(epicTask.getStatus(), Status.NEW);
+        assertEquals(2, epicTask.getSubTaskList().size());
+
+        EpicTask newEpic = manager.getEpicTask(epicTask.getTaskId());
+        assertEquals(epicTask, newEpic);
     }
 
     @Test
     void shouldBeNewStatusWhenAllSubTaskWasDeleted() {
-        SubTask subTask1 = new SubTask("Sub task1", "sub 1", getDefaultLocalDateTime(), 50, epicTask.getTaskId());
-        SubTask subTask2 = new SubTask("Sub task2", "sub 2", getDefaultLocalDateTime(), 50, epicTask.getTaskId());
+        SubTask subTask1 = generateCurrentSubTask("Sub task1",  2024, 1,1,1,1,1, epicTask.getTaskId());
+        SubTask subTask2 = generateCurrentSubTask("Sub task2",  2026, 1,1,1,1,1, epicTask.getTaskId());
         manager.addSubTask(subTask1);
         manager.addSubTask(subTask2);
         manager.getEpicTask(epicTask.getTaskId());
@@ -147,4 +148,22 @@ class EpicTaskTest {
     }
 
 
+
+    private LocalDateTime getDefaultLocalDateTime() {
+        LocalDate date = LocalDate.of(2022, random.nextInt(11) + 1, random.nextInt(26) + 1);
+        LocalTime time = LocalTime.of(random.nextInt(24), random.nextInt(59), random.nextInt(59));
+        return LocalDateTime.of(date, time);
+    }
+
+
+    private SubTask generateCurrentSubTask(String name, int year, int month, int day, int hour, int min, int duration, int epicId) {
+        return new SubTask(name, "sub_" + index++,
+                getDefaultLocalDateTime(year, month, day, hour, min), duration, epicId);
+    }
+
+    private LocalDateTime getDefaultLocalDateTime(int year, int month, int day, int hour, int min) {
+        LocalDate date = LocalDate.of(year, month, day);
+        LocalTime time = LocalTime.of(hour, min, 1);
+        return LocalDateTime.of(date, time);
+    }
 }
