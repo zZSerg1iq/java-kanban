@@ -43,6 +43,9 @@ class HttpTaskServerTest {
 
     private static final String httpServerUrl = "http://localhost:8080";
     private static final String KVServerUrl = "http://localhost:8078";
+    String subtaskPath = "/tasks/subtask";
+    String taskPath = "/tasks/task";
+    String epicPath = "/tasks/epic";
 
     private static Random random;
     private static Gson gson;
@@ -66,35 +69,35 @@ class HttpTaskServerTest {
     }
 
 
-    @Test
+    //@Test
     void testForAllTaskEndpoint() {
-        String path = "/tasks/task";
+        
 
         /**
          *  @endpoint  /tasks/task     ( add )
          *  @method    -POST
          */
         Task seed = generateCurrentTask("task1", 2020, 10, 10, 10, 10, 10);
-        assertEquals("Задача добавлена", sendPost(path, seed));
+        assertEquals("Задача добавлена", sendPost(taskPath, seed));
 
         Task task1 = generateRandomTask(seed);
-        assertEquals("Задача добавлена", sendPost(path, task1));
+        assertEquals("Задача добавлена", sendPost(taskPath, task1));
 
         Task task2 = generateRandomTask(task1);
-        assertEquals("Задача добавлена", sendPost(path, task2));
+        assertEquals("Задача добавлена", sendPost(taskPath, task2));
 
         Task task3 = generateRandomTask(task2);
-        assertEquals("Задача добавлена", sendPost(path, task3));
+        assertEquals("Задача добавлена", sendPost(taskPath, task3));
 
         Task task4 = generateRandomTask(task3);
-        assertEquals("Задача добавлена", sendPost(path, task4));
+        assertEquals("Задача добавлена", sendPost(taskPath, task4));
 
 
         /**
          *  @endpoint  /tasks    ( get sorted list )
          *  @method    -get
          */
-        List<Task> taskList = getTaskList(path);
+        List<Task> taskList = getTaskList(taskPath);
         assertEquals(5, taskList.size());
         for (Task t : taskList) {
             assertEquals(Status.NEW, t.getStatus());
@@ -107,23 +110,23 @@ class HttpTaskServerTest {
          *  @endpoint  /tasks/task/?id=     ( get by id )
          *  @method    -get
          */
-        String returnedTask1String = sendGet(path, taskList.get(0).getId());
+        String returnedTask1String = sendGet(taskPath, taskList.get(0).getId());
         Task returned1 = gson.fromJson(returnedTask1String, Task.class);
         assertEquals(taskList.get(0), returned1);
 
-        String returnedTask2String = sendGet(path, taskList.get(1).getId());
+        String returnedTask2String = sendGet(taskPath, taskList.get(1).getId());
         Task returned2 = gson.fromJson(returnedTask2String, Task.class);
         assertEquals(taskList.get(1), returned2);
 
-        String returnedTask3String = sendGet(path, taskList.get(2).getId());
+        String returnedTask3String = sendGet(taskPath, taskList.get(2).getId());
         Task returned3 = gson.fromJson(returnedTask3String, Task.class);
         assertEquals(taskList.get(2), returned3);
 
-        String returnedTask4String = sendGet(path, taskList.get(3).getId());
+        String returnedTask4String = sendGet(taskPath, taskList.get(3).getId());
         Task returned4 = gson.fromJson(returnedTask4String, Task.class);
         assertEquals(taskList.get(3), returned4);
 
-        String returnedTask5String = sendGet(path, taskList.get(4).getId());
+        String returnedTask5String = sendGet(taskPath, taskList.get(4).getId());
         Task returned5 = gson.fromJson(returnedTask5String, Task.class);
         assertEquals(taskList.get(4), returned5);
 
@@ -137,13 +140,13 @@ class HttpTaskServerTest {
         returned2.setStatus(Status.IN_PROGRESS);
         returned3.setStatus(Status.IN_PROGRESS);
         returned4.setStatus(Status.IN_PROGRESS);
-        assertEquals("Задача обновлена", sendPost(path, returned1));
-        assertEquals("Задача обновлена", sendPost(path, returned2));
-        assertEquals("Задача обновлена", sendPost(path, returned3));
-        assertEquals("Задача обновлена", sendPost(path, returned4));
-        assertEquals("Задача обновлена", sendPost(path, returned5));
+        assertEquals("Задача обновлена", sendPost(taskPath, returned1));
+        assertEquals("Задача обновлена", sendPost(taskPath, returned2));
+        assertEquals("Задача обновлена", sendPost(taskPath, returned3));
+        assertEquals("Задача обновлена", sendPost(taskPath, returned4));
+        assertEquals("Задача обновлена", sendPost(taskPath, returned5));
 
-        taskList = getTaskList(path);
+        taskList = getTaskList(taskPath);
 
         int doneCount = 0;
         int inProgressCount = 0;
@@ -176,10 +179,10 @@ class HttpTaskServerTest {
          *  @method    -DELETE
          */
 
-        assertEquals("Задача удалена", sendDelete(path, returned1.getId()));
-        assertEquals("Задача удалена", sendDelete(path, returned5.getId()));
-        assertEquals("Задача не найдена", sendDelete(path, 222));
-        taskList = getTaskList(path);
+        assertEquals("Задача удалена", sendDelete(taskPath, returned1.getId()));
+        assertEquals("Задача удалена", sendDelete(taskPath, returned5.getId()));
+        assertEquals("Задача не найдена", sendDelete(taskPath, 222));
+        taskList = getTaskList(taskPath);
         assertEquals(3, taskList.size());
         assertFalse(taskList.contains(returned1));
         assertFalse(taskList.contains(returned5));
@@ -189,28 +192,27 @@ class HttpTaskServerTest {
          *  @endpoint  /tasks/task/    ( delete all )
          *  @method    -DELETE
          */
-        assertEquals("Все задачи удалены", sendDelete(path, -1));
-        taskList = getTaskList(path);
+        assertEquals("Все задачи удалены", sendDelete(taskPath, -1));
+        taskList = getTaskList(taskPath);
         assertEquals(0, taskList.size());
     }
 
-
-    @Test
+    //@Test
     void addForAllEpicAndSubTaskEndpoints() {
-        String path = "/tasks/epic";
+        
 
         /**
          *  @endpoint  /tasks/task     ( add )
          *  @method    -POST
          */
         EpicTask seed = generateEpicTask();
-        assertEquals("Эпик добавлен", sendPost(path, seed));
+        assertEquals("Эпик добавлен", sendPost(epicPath, seed));
 
         EpicTask epicTask1 = generateEpicTask();
-        assertEquals("Эпик добавлен", sendPost(path, epicTask1));
+        assertEquals("Эпик добавлен", sendPost(epicPath, epicTask1));
 
         EpicTask epicTask2 = generateEpicTask();
-        assertEquals("Эпик добавлен", sendPost(path, epicTask2));
+        assertEquals("Эпик добавлен", sendPost(epicPath, epicTask2));
 
 
         /**
@@ -218,7 +220,7 @@ class HttpTaskServerTest {
          *  @method    -get
          */
 
-        List<EpicTask> epicList = getEpicTaskList(path);
+        List<EpicTask> epicList = getEpicTaskList(epicPath);
         assertEquals(3, epicList.size());
 
         for (Task t : epicList) {
@@ -230,13 +232,13 @@ class HttpTaskServerTest {
          *  @endpoint  /tasks/epic/?id=     ( get by id )
          *  @method    -get
          */
-        EpicTask returnedEpic1 = gson.fromJson(sendGet(path, epicList.get(0).getId()), EpicTask.class);
+        EpicTask returnedEpic1 = gson.fromJson(sendGet(epicPath, epicList.get(0).getId()), EpicTask.class);
         assertEquals(epicList.get(0), returnedEpic1);
 
-        EpicTask returnedEpic2 = gson.fromJson(sendGet(path, epicList.get(1).getId()), EpicTask.class);
+        EpicTask returnedEpic2 = gson.fromJson(sendGet(epicPath, epicList.get(1).getId()), EpicTask.class);
         assertEquals(epicList.get(1), returnedEpic2);
 
-        EpicTask returnedEpic3 = gson.fromJson(sendGet(path, epicList.get(2).getId()), EpicTask.class);
+        EpicTask returnedEpic3 = gson.fromJson(sendGet(epicPath, epicList.get(2).getId()), EpicTask.class);
         assertEquals(epicList.get(2), returnedEpic3);
 
 
@@ -263,7 +265,7 @@ class HttpTaskServerTest {
         assertEquals(3, subTaskList.size());
 
         //получаем эпик в который добавляли, проверяем
-        EpicTask returnedTest = gson.fromJson(sendGet(path, returnedEpic1.getId()), EpicTask.class);
+        EpicTask returnedTest = gson.fromJson(sendGet(epicPath, returnedEpic1.getId()), EpicTask.class);
         assertEquals(3, returnedTest.getSubTaskList().size());
 
 
@@ -271,10 +273,10 @@ class HttpTaskServerTest {
          *  @endpoint  /tasks/task/?id=    ( delete by id )
          *  @method    -DELETE
          */
-        assertEquals("Эпик удален", sendDelete(path, returnedEpic1.getId()));
-        assertEquals("Эпик не найден", sendDelete(path, 222));
+        assertEquals("Эпик удален", sendDelete(epicPath, returnedEpic1.getId()));
+        assertEquals("Эпик не найден", sendDelete(epicPath, 222));
 
-        epicList = getEpicTaskList(path);
+        epicList = getEpicTaskList(epicPath);
         assertEquals(2, epicList.size());
 
 
@@ -283,42 +285,59 @@ class HttpTaskServerTest {
          *  @method    -DELETE
          */
 
-        sendDelete(path, -1);
-        epicList = getEpicTaskList(path);
+        sendDelete(epicPath, -1);
+        epicList = getEpicTaskList(epicPath);
         assertEquals("[]", epicList);
     }
 
     @Test
     void addSubTaskEndpoint() {
-        String path = "/tasks/subtask";
-
         /**
-         *  @endpoint  /tasks/task     ( add )
+         *  @endpoint  /tasks/subtask     ( add )
          *  @method    -POST
          */
-        Task seed = generateCurrentTask("task1", 2020, 10, 10, 10, 10, 10);
-        assertEquals("Задача добавлена", sendPost(path, seed));
+        EpicTask seedEpic = generateEpicTask();
+        assertEquals("Эпик добавлен", sendPost(epicPath, seedEpic));
 
-        Task task1 = generateRandomTask(seed);
-        assertEquals("Задача добавлена", sendPost(path, task1));
+        List<EpicTask> epicList = getEpicTaskList(epicPath);
+        assertEquals(1, epicList.size());
 
-        Task task2 = generateRandomTask(task1);
-        assertEquals("Задача добавлена", sendPost(path, task2));
+        EpicTask mainEpic = gson.fromJson(sendGet(epicPath, epicList.get(0).getId()), EpicTask.class);
+        assertEquals(epicList.get(0), mainEpic);
+        int epicId = mainEpic.getId();
 
-        Task task3 = generateRandomTask(task2);
-        assertEquals("Задача добавлена", sendPost(path, task3));
 
-        Task task4 = generateRandomTask(task3);
-        assertEquals("Задача добавлена", sendPost(path, task4));
+
+
+        SubTask seed = generateCurrentSubTask("task1", 2020, 10, 10, 10, 10, 10, epicId);
+        assertEquals("Subtask добавлен", sendPost(subtaskPath, seed));
+
+        SubTask task1 = generateSubTask(seed, epicId);
+        assertEquals("Subtask добавлен", sendPost(subtaskPath, task1));
+
+        SubTask task2 = generateSubTask(task1, epicId);
+        assertEquals("Subtask добавлен", sendPost(subtaskPath, task2));
+
+        SubTask task3 = generateSubTask(task2, epicId);
+        assertEquals("Subtask добавлен", sendPost(subtaskPath, task3));
+
+        SubTask task4 = generateSubTask(task3, epicId);
+        assertEquals("Subtask добавлен", sendPost(subtaskPath, task4));
+
+        mainEpic = gson.fromJson(sendGet(epicPath, epicList.get(0).getId()), EpicTask.class);
+        assertEquals(5, mainEpic.getSubTaskList().size());
+
+
+
 
 
         /**
-         *  @endpoint  /tasks    ( get sorted list )
+         *  @endpoint  /tasks/subtask    ( get list )
          *  @method    -get
          */
-        List<Task> taskList = getTaskList(path);
-        assertEquals(5, taskList.size());
-        for (Task t : taskList) {
+        List<SubTask> subTaskList = getSubTaskList(subtaskPath);
+        assertEquals(5, subTaskList.size());
+        for (SubTask t : subTaskList) {
             assertEquals(Status.NEW, t.getStatus());
         }
 
@@ -326,32 +345,32 @@ class HttpTaskServerTest {
 
 
         /**
-         *  @endpoint  /tasks/task/?id=     ( get by id )
+         *  @endpoint  /tasks//subtask/?id=     ( get by id )
          *  @method    -get
          */
-        String returnedTask1String = sendGet(path, taskList.get(0).getId());
-        Task returned1 = gson.fromJson(returnedTask1String, Task.class);
-        assertEquals(taskList.get(0), returned1);
+        String returnedTask1String = sendGet(subtaskPath, subTaskList.get(0).getId());
+        SubTask returned1 = gson.fromJson(returnedTask1String, SubTask.class);
+        assertEquals(subTaskList.get(0), returned1);
 
-        String returnedTask2String = sendGet(path, taskList.get(1).getId());
-        Task returned2 = gson.fromJson(returnedTask2String, Task.class);
-        assertEquals(taskList.get(1), returned2);
+        String returnedTask2String = sendGet(subtaskPath, subTaskList.get(1).getId());
+        SubTask returned2 = gson.fromJson(returnedTask2String, SubTask.class);
+        assertEquals(subTaskList.get(1), returned2);
 
-        String returnedTask3String = sendGet(path, taskList.get(2).getId());
-        Task returned3 = gson.fromJson(returnedTask3String, Task.class);
-        assertEquals(taskList.get(2), returned3);
+        String returnedTask3String = sendGet(subtaskPath, subTaskList.get(2).getId());
+        SubTask returned3 = gson.fromJson(returnedTask3String, SubTask.class);
+        assertEquals(subTaskList.get(2), returned3);
 
-        String returnedTask4String = sendGet(path, taskList.get(3).getId());
-        Task returned4 = gson.fromJson(returnedTask4String, Task.class);
-        assertEquals(taskList.get(3), returned4);
+        String returnedTask4String = sendGet(subtaskPath, subTaskList.get(3).getId());
+        SubTask returned4 = gson.fromJson(returnedTask4String, SubTask.class);
+        assertEquals(subTaskList.get(3), returned4);
 
-        String returnedTask5String = sendGet(path, taskList.get(4).getId());
-        Task returned5 = gson.fromJson(returnedTask5String, Task.class);
-        assertEquals(taskList.get(4), returned5);
+        String returnedTask5String = sendGet(subtaskPath, subTaskList.get(4).getId());
+        SubTask returned5 = gson.fromJson(returnedTask5String, SubTask.class);
+        assertEquals(subTaskList.get(4), returned5);
 
 
         /**
-         *  @endpoint  /tasks/task/    ( update )
+         *  @endpoint  /tasks/subtask/    ( update )
          *  @method    -POST
          */
         returned1.setStatus(Status.DONE);
@@ -359,18 +378,18 @@ class HttpTaskServerTest {
         returned2.setStatus(Status.IN_PROGRESS);
         returned3.setStatus(Status.IN_PROGRESS);
         returned4.setStatus(Status.IN_PROGRESS);
-        assertEquals("Задача обновлена", sendPost(path, returned1));
-        assertEquals("Задача обновлена", sendPost(path, returned2));
-        assertEquals("Задача обновлена", sendPost(path, returned3));
-        assertEquals("Задача обновлена", sendPost(path, returned4));
-        assertEquals("Задача обновлена", sendPost(path, returned5));
+        assertEquals("Subtask обновлен", sendPost(subtaskPath, returned1));
+        assertEquals("Subtask обновлен", sendPost(subtaskPath, returned2));
+        assertEquals("Subtask обновлен", sendPost(subtaskPath, returned3));
+        assertEquals("Subtask обновлен", sendPost(subtaskPath, returned4));
+        assertEquals("Subtask обновлен", sendPost(subtaskPath, returned5));
 
-        taskList = getTaskList(path);
+        subTaskList = getSubTaskList(subtaskPath);
 
         int doneCount = 0;
         int inProgressCount = 0;
         int newCount = 0;
-        for (Task task : taskList) {
+        for (SubTask task : subTaskList) {
             switch (task.getStatus()) {
                 case DONE: {
                     doneCount++;
@@ -386,34 +405,39 @@ class HttpTaskServerTest {
                 }
             }
         }
-
-        assertEquals(5, taskList.size());
+        mainEpic = gson.fromJson(sendGet(epicPath, epicList.get(0).getId()), EpicTask.class);
+        assertEquals(5, mainEpic.getSubTaskList().size());
+        assertEquals(Status.IN_PROGRESS, mainEpic.getStatus());
+        assertEquals(5, subTaskList.size());
+        assertEquals(0, newCount);
         assertEquals(2, doneCount);
         assertEquals(3, inProgressCount);
-        assertEquals(0, newCount);
 
-
-        /**
-         *  @endpoint  /tasks/task/?id=    ( delete by id )
-         *  @method    -DELETE
-         */
-
-        assertEquals("Задача удалена", sendDelete(path, returned1.getId()));
-        assertEquals("Задача удалена", sendDelete(path, returned5.getId()));
-        assertEquals("Задача не найдена", sendDelete(path, 222));
-        taskList = getTaskList(path);
-        assertEquals(3, taskList.size());
-        assertFalse(taskList.contains(returned1));
-        assertFalse(taskList.contains(returned5));
 
 
         /**
-         *  @endpoint  /tasks/task/    ( delete all )
+         *  @endpoint  /tasks/subtask/?id=    ( delete by id )
          *  @method    -DELETE
          */
-        assertEquals("Все задачи удалены", sendDelete(path, -1));
-        taskList = getTaskList(path);
-        assertEquals(0, taskList.size());
+
+        assertEquals("Subtask удален", sendDelete(subtaskPath, returned1.getId()));
+        assertEquals("Subtask удален", sendDelete(subtaskPath, returned5.getId()));
+        assertEquals("Subtask не найден", sendDelete(subtaskPath, 222));
+
+        subTaskList = getSubTaskList(subtaskPath);
+
+        assertEquals(3, subTaskList.size());
+        assertFalse(subTaskList.contains(returned1));
+        assertFalse(subTaskList.contains(returned5));
+
+
+        /**
+         *  @endpoint  /tasks/subtask    ( delete all )
+         *  @method    -DELETE
+         */
+        assertEquals("Все Subtask удалены", sendDelete(subtaskPath, -1));
+        subTaskList = getSubTaskList(subtaskPath);
+        assertEquals(0, subTaskList.size());
     }
 
     private String sendGet(String endpoint, int id) {

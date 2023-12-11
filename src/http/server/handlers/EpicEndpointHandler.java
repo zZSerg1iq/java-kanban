@@ -72,7 +72,7 @@ public class EpicEndpointHandler extends EndpointHandler {
             return new ResponseEntity("Эпик добавлен", 201);
         } else {
             //если id есть, это изменение
-            taskManager.updateEpicTask(task);
+            taskManager.updateEpic(task);
             return new ResponseEntity("Эпик обновлен", 201);
         }
     }

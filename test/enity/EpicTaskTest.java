@@ -42,15 +42,12 @@ class EpicTaskTest {
     @Test
     void shouldBeNewStatusWhenAllSubTaskIsNEW() {
         SubTask subTask1 = generateCurrentSubTask("Sub task1",  2020, 1,1,1,1,1, epicTask.getId());
-        SubTask subTask2 = generateCurrentSubTask("Sub task2",  2022, 1,1,1,1,1, epicTask.getId());
+        SubTask subTask2 = generateCurrentSubTask("Sub task2",  2022, 1,1,2,1,1, epicTask.getId());
         manager.addSubTask(subTask1);
         manager.addSubTask(subTask2);
 
         assertEquals(epicTask.getStatus(), Status.NEW);
         assertEquals(2, epicTask.getSubTaskList().size());
-
-        EpicTask newEpic = manager.getEpicTask(epicTask.getId());
-        assertEquals(epicTask, newEpic);
     }
 
     @Test

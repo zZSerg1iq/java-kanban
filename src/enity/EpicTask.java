@@ -37,12 +37,7 @@ public class EpicTask extends Task {
     public EpicTask(EpicTask epicTask) {
         super(epicTask.getId(), epicTask.getTaskName(), null, epicTask.getTaskDescription(), null, 0);
 
-        subTaskList = new LinkedList<>();
-
-        for (SubTask s: epicTask.getSubTaskList() ) {
-            SubTask subTask = new SubTask(s);
-            addSubTask(subTask);
-        }
+        subTaskList = new LinkedList<>(epicTask.getSubTaskList());
 
         resetStatus();
         updateDateTime();
@@ -55,11 +50,26 @@ public class EpicTask extends Task {
         updateDateTime();
     }
 
+    public void updateSubtask(SubTask newSub){
+        SubTask oldSub = null;
+        for (SubTask sub : subTaskList) {
+            if (sub.getId() == newSub.getId()){
+                oldSub = sub;
+                break;
+            }
+        }
+        subTaskList.remove(oldSub);
+        subTaskList.add(newSub);
+        resetStatus();
+        Collections.sort(subTaskList);
+    };
+
     public void subTaskRemove(SubTask subTask) {
-            subTaskList.remove(subTask);
+        if (subTaskList.remove(subTask)) {
             Collections.sort(subTaskList);
             decreaseDuration(subTask.getDuration());
             updateDateTime();
+        }
     }
 
     public LinkedList<SubTask> getSubTaskList() {
@@ -158,4 +168,7 @@ public class EpicTask extends Task {
     }
 
 
+    public void removeAllSubTasks() {
+        subTaskList.clear();
+    }
 }

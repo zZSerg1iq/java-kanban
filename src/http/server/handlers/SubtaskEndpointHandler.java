@@ -101,7 +101,7 @@ public class SubtaskEndpointHandler extends EndpointHandler {
         } else {
             //удалить все задачи
             taskManager.removeAllSubtasks();
-            return new ResponseEntity(gson.toJson("Все Subtask удалены"), 201);
+            return new ResponseEntity("Все Subtask удалены", 201);
         }
     }
 }

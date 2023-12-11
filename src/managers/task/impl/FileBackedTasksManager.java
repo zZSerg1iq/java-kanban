@@ -92,8 +92,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public EpicTask updateEpicTask(EpicTask newEpic) {
-        var epic = super.updateEpicTask(newEpic);
+    public EpicTask updateEpic(EpicTask newEpic) {
+        var epic = super.updateEpic(newEpic);
         save();
         return epic;
     }
