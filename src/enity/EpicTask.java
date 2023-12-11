@@ -35,7 +35,7 @@ public class EpicTask extends Task {
     }
 
     public EpicTask(EpicTask epicTask) {
-        super(epicTask.getTaskId(), epicTask.getTaskName(), null, epicTask.getTaskDescription(), null, 0);
+        super(epicTask.getId(), epicTask.getTaskName(), null, epicTask.getTaskDescription(), null, 0);
 
         subTaskList = new LinkedList<>();
 
@@ -149,7 +149,7 @@ public class EpicTask extends Task {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         return TaskType.EPIC.name() + ","
-                + this.getTaskId() + ","
+                + this.getId() + ","
                 + this.getTaskName() + ","
                 + this.getStatus() + ","
                 + getTaskDescription() + ","

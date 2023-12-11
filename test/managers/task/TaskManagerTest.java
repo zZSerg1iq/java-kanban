@@ -93,21 +93,21 @@ abstract class TaskManagerTest<T extends TaskManager> {
     void shouldBeAThreeSubTaskWithStatusNew() {
         EpicTask epicTask = generateEpicTask();
         taskManager.addEpicTask(epicTask);
-        int count = taskManager.getEpicTask(epicTask.getTaskId()).getSubTaskList().size();
+        int count = taskManager.getEpicTask(epicTask.getId()).getSubTaskList().size();
 
-        SubTask subTask1 = generateSubTask(null, epicTask.getTaskId());
+        SubTask subTask1 = generateSubTask(null, epicTask.getId());
         taskManager.addSubTask(subTask1);
 
-        SubTask subTask2 = generateSubTask(subTask1, epicTask.getTaskId());
-        taskManager.addSubTask(generateSubTask(subTask2, epicTask.getTaskId()));
+        SubTask subTask2 = generateSubTask(subTask1, epicTask.getId());
+        taskManager.addSubTask(generateSubTask(subTask2, epicTask.getId()));
 
-        SubTask subTask3 = generateSubTask(subTask2, epicTask.getTaskId());
-        taskManager.addSubTask(generateSubTask(subTask3, epicTask.getTaskId()));
+        SubTask subTask3 = generateSubTask(subTask2, epicTask.getId());
+        taskManager.addSubTask(generateSubTask(subTask3, epicTask.getId()));
 
         List<SubTask> subTasks = taskManager.getSubtaskList();
         assertEquals(count + 3, subTasks.size());
 
-        EpicTask epicTask1 = taskManager.getEpicTask(epicTask.getTaskId());
+        EpicTask epicTask1 = taskManager.getEpicTask(epicTask.getId());
         assertEquals(count + 3, epicTask1.getSubTaskList().size());
 
         for (Task task : subTasks) {
@@ -157,17 +157,17 @@ abstract class TaskManagerTest<T extends TaskManager> {
         EpicTask epicTask = generateEpicTask();
         taskManager.addEpicTask(epicTask);
 
-        SubTask subTask1 = generateSubTask(null, epicTask.getTaskId());
+        SubTask subTask1 = generateSubTask(null, epicTask.getId());
         taskManager.addSubTask(subTask1);
 
-        SubTask subTask2 = generateSubTask(subTask1, epicTask.getTaskId());
-        taskManager.addSubTask(generateSubTask(subTask2, epicTask.getTaskId()));
+        SubTask subTask2 = generateSubTask(subTask1, epicTask.getId());
+        taskManager.addSubTask(generateSubTask(subTask2, epicTask.getId()));
 
-        SubTask subTask3 = generateSubTask(subTask2, epicTask.getTaskId());
-        taskManager.addSubTask(generateSubTask(subTask3, epicTask.getTaskId()));
+        SubTask subTask3 = generateSubTask(subTask2, epicTask.getId());
+        taskManager.addSubTask(generateSubTask(subTask3, epicTask.getId()));
 
-        SubTask subTask4 = generateSubTask(subTask3, epicTask.getTaskId());
-        taskManager.addSubTask(generateSubTask(subTask4, epicTask.getTaskId()));
+        SubTask subTask4 = generateSubTask(subTask3, epicTask.getId());
+        taskManager.addSubTask(generateSubTask(subTask4, epicTask.getId()));
 
         assertEquals(subSize + 4, taskManager.getSubtaskList().size());
 
@@ -194,7 +194,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         Task task = generateRandomTask(null);
         taskManager.addTask(task);
 
-        assertEquals(task, taskManager.getTask(task.getTaskId()));
+        assertEquals(task, taskManager.getTask(task.getId()));
         assertEquals(Status.NEW, task.getStatus());
 
         assertNull(taskManager.getTask(123234455));
@@ -204,16 +204,16 @@ abstract class TaskManagerTest<T extends TaskManager> {
     void updateTaskTest() {
         Task task = generateRandomTask(null);
         taskManager.addTask(task);
-        assertEquals(task, taskManager.getTask(task.getTaskId()));
-        assertEquals(Status.NEW, taskManager.getTask(task.getTaskId()).getStatus());
+        assertEquals(task, taskManager.getTask(task.getId()));
+        assertEquals(Status.NEW, taskManager.getTask(task.getId()).getStatus());
 
         task.setStatus(Status.IN_PROGRESS);
         taskManager.updateTask(task);
-        assertEquals(Status.IN_PROGRESS, taskManager.getTask(task.getTaskId()).getStatus());
+        assertEquals(Status.IN_PROGRESS, taskManager.getTask(task.getId()).getStatus());
 
         task.setStatus(Status.DONE);
         taskManager.updateTask(task);
-        assertEquals(Status.DONE, taskManager.getTask(task.getTaskId()).getStatus());
+        assertEquals(Status.DONE, taskManager.getTask(task.getId()).getStatus());
     }
 
     @Test
@@ -226,7 +226,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         var taskList = taskManager.getTaskList();
         assertTrue(taskList.contains(task));
 
-        taskManager.removeTask(task.getTaskId());
+        taskManager.removeTask(task.getId());
         assertEquals(count, taskManager.getTaskList().size());
         taskList = taskManager.getTaskList();
         assertFalse(taskList.contains(task));
@@ -250,7 +250,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         EpicTask task = generateEpicTask();
         taskManager.addEpicTask(task);
 
-        assertEquals(task, taskManager.getEpicTask(task.getTaskId()));
+        assertEquals(task, taskManager.getEpicTask(task.getId()));
         assertEquals(Status.NEW, task.getStatus());
 
         assertNull(taskManager.getEpicTask(123234455));
@@ -266,7 +266,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         var taskList = taskManager.getEpicTaskList();
         assertTrue(taskList.contains(task));
 
-        taskManager.removeEpic(task.getTaskId());
+        taskManager.removeEpic(task.getId());
         assertEquals(count, taskManager.getEpicTaskList().size());
 
         taskList = taskManager.getEpicTaskList();
@@ -280,17 +280,17 @@ abstract class TaskManagerTest<T extends TaskManager> {
         //добавление подзадач в эпик и проверка, что все ок
         EpicTask task = generateEpicTask();
         taskManager.addEpicTask(task);
-        SubTask subTask1 = generateSubTask(null, task.getTaskId());
+        SubTask subTask1 = generateSubTask(null, task.getId());
         taskManager.addSubTask(subTask1);
-        SubTask subTask2 = generateSubTask(subTask1, task.getTaskId());
-        taskManager.addSubTask(generateSubTask(subTask2, task.getTaskId()));
-        SubTask subTask3 = generateSubTask(subTask2, task.getTaskId());
-        taskManager.addSubTask(generateSubTask(subTask3, task.getTaskId()));
+        SubTask subTask2 = generateSubTask(subTask1, task.getId());
+        taskManager.addSubTask(generateSubTask(subTask2, task.getId()));
+        SubTask subTask3 = generateSubTask(subTask2, task.getId());
+        taskManager.addSubTask(generateSubTask(subTask3, task.getId()));
         assertEquals(size + 3, taskManager.getSubtaskList().size());
 
 
         //попытка добавления подзадачи к несуществующему эпику
-        SubTask subTask4 = generateSubTask(subTask3, task.getTaskId());
+        SubTask subTask4 = generateSubTask(subTask3, task.getId());
         Executable executable = () -> taskManager.addSubTask(generateSubTask(subTask4,234234234));
         assertThrows(RuntimeException.class, executable);
     }
@@ -300,7 +300,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         Task task = generateRandomTask(null);
         taskManager.addTask(task);
 
-        assertEquals(task, taskManager.getTask(task.getTaskId()));
+        assertEquals(task, taskManager.getTask(task.getId()));
         assertEquals(Status.NEW, task.getStatus());
 
         assertNull(taskManager.getTask(123234455));
@@ -313,19 +313,19 @@ abstract class TaskManagerTest<T extends TaskManager> {
         EpicTask epicTask = generateEpicTask();
         taskManager.addEpicTask(epicTask);
 
-        SubTask task = generateSubTask(null, epicTask.getTaskId());
+        SubTask task = generateSubTask(null, epicTask.getId());
         taskManager.addSubTask(task);
 
-        assertEquals(task, taskManager.getSubTask(task.getTaskId()));
-        assertEquals(Status.NEW, taskManager.getSubTask(task.getTaskId()).getStatus());
+        assertEquals(task, taskManager.getSubTask(task.getId()));
+        assertEquals(Status.NEW, taskManager.getSubTask(task.getId()).getStatus());
 
         task.setStatus(Status.IN_PROGRESS);
         taskManager.updateSubTask(task);
-        assertEquals(Status.IN_PROGRESS, taskManager.getSubTask(task.getTaskId()).getStatus());
+        assertEquals(Status.IN_PROGRESS, taskManager.getSubTask(task.getId()).getStatus());
 
         task.setStatus(Status.DONE);
         taskManager.updateSubTask(task);
-        assertEquals(Status.DONE, taskManager.getSubTask(task.getTaskId()).getStatus());
+        assertEquals(Status.DONE, taskManager.getSubTask(task.getId()).getStatus());
     }
 
     @Test
@@ -337,14 +337,14 @@ abstract class TaskManagerTest<T extends TaskManager> {
         int countEpic = epicTask.getSubTaskList().size();
         assertEquals(0, countEpic);
 
-        SubTask task = generateSubTask(null, epicTask.getTaskId());
+        SubTask task = generateSubTask(null, epicTask.getId());
         taskManager.addSubTask(task);
         assertEquals(count + 1, taskManager.getSubtaskList().size());
         assertEquals(countEpic + 1, epicTask.getSubTaskList().size());
 
         var taskList = taskManager.getSubtaskList();
         assertTrue(taskList.contains(task));
-        taskManager.removeSubTask(task.getTaskId());
+        taskManager.removeSubTask(task.getId());
 
         count = taskManager.getSubtaskList().size();
         assertEquals(count, taskManager.getSubtaskList().size());
@@ -359,9 +359,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.addTask(task0);
         taskManager.addTask(task1);
         taskManager.addTask(task2);
-        taskManager.getTask(task0.getTaskId());
-        taskManager.getTask(task1.getTaskId());
-        taskManager.getTask(task2.getTaskId());
+        taskManager.getTask(task0.getId());
+        taskManager.getTask(task1.getId());
+        taskManager.getTask(task2.getId());
         var history = taskManager.getHistory();
 
 
@@ -372,9 +372,9 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
 
         //получение задач и проверка изменения истории
-        taskManager.getTask(task2.getTaskId());
-        taskManager.getTask(task0.getTaskId());
-        taskManager.getTask(task1.getTaskId());
+        taskManager.getTask(task2.getId());
+        taskManager.getTask(task0.getId());
+        taskManager.getTask(task1.getId());
         history = taskManager.getHistory();
         assertEquals(task2, history.get(0));
         assertEquals(task0, history.get(1));
@@ -384,7 +384,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         //добавление новой задачи и проверка истории
         Task task3 = generateRandomTask(task2);
         taskManager.addTask(task3);
-        taskManager.getTask(task3.getTaskId());
+        taskManager.getTask(task3.getId());
         history = taskManager.getHistory();
         assertEquals(task2, history.get(0));
         assertEquals(task0, history.get(1));
@@ -408,7 +408,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
 
         //получение новой задачи и проверка соответствия истории
-        taskManager.getTask(task4.getTaskId());
+        taskManager.getTask(task4.getId());
         history = taskManager.getHistory();
         assertEquals(task2, history.get(0));
         assertEquals(task0, history.get(1));
@@ -420,15 +420,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
         //добавление подзадач
         EpicTask epicTask = generateEpicTask();
         taskManager.addEpicTask(epicTask);
-        SubTask sub0 = generateSubTask(null, epicTask.getTaskId());
-        SubTask sub1 = generateSubTask(sub0, epicTask.getTaskId());
-        SubTask sub2 = generateSubTask(sub1, epicTask.getTaskId());
+        SubTask sub0 = generateSubTask(null, epicTask.getId());
+        SubTask sub1 = generateSubTask(sub0, epicTask.getId());
+        SubTask sub2 = generateSubTask(sub1, epicTask.getId());
         taskManager.addSubTask(sub0);
         taskManager.addSubTask(sub1);
         taskManager.addSubTask(sub2);
-        taskManager.getSubTask(sub2.getTaskId());
-        taskManager.getSubTask(sub0.getTaskId());
-        taskManager.getSubTask(sub1.getTaskId());
+        taskManager.getSubTask(sub2.getId());
+        taskManager.getSubTask(sub0.getId());
+        taskManager.getSubTask(sub1.getId());
 
         history = taskManager.getHistory();
         assertEquals(task2, history.get(0));
@@ -442,10 +442,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
 
         //перемешивание истории и сверка
-        taskManager.getTask(task0.getTaskId());
-        taskManager.getTask(task4.getTaskId());
-        taskManager.getTask(task2.getTaskId());
-        taskManager.getSubTask(sub2.getTaskId());
+        taskManager.getTask(task0.getId());
+        taskManager.getTask(task4.getId());
+        taskManager.getTask(task2.getId());
+        taskManager.getSubTask(sub2.getId());
 
         history = taskManager.getHistory();
         assertEquals(task1, history.get(0));

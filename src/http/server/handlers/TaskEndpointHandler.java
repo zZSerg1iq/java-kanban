@@ -66,7 +66,7 @@ public class TaskEndpointHandler extends EndpointHandler {
         Task task = gson.fromJson(body, Task.class);
 
         //если id нету ( = 0 ), это добавление новой
-        if (task.getTaskId() == 0) {
+        if (task.getId() == 0) {
             taskManager.addTask(task);
             return new ResponseEntity("Задача добавлена", 201);
         } else {

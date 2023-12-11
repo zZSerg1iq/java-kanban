@@ -59,10 +59,10 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         for (int i = 0; i < 5; i++) {
             int subCount = random.nextInt(10) + 1;
             EpicTask epicTask = epicTasks.get(i);
-            SubTask tempSub = generateSubTask(null, epicTask.getTaskId());
+            SubTask tempSub = generateSubTask(null, epicTask.getId());
 
             for (int j = 0; j < subCount; j++) {
-                SubTask subTask = generateSubTask(tempSub, epicTask.getTaskId());
+                SubTask subTask = generateSubTask(tempSub, epicTask.getId());
                 subTasks.add(subTask);
                 taskList.add(subTask);
                 taskManager.addSubTask(subTask);
@@ -105,7 +105,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         for (int i = 0; i < taskList.size(); i++) {
             int randomTask = random.nextInt(taskList.size());
             historyList.add(taskList.get(randomTask));
-            taskManager.getTask(taskList.get(randomTask).getTaskId());
+            taskManager.getTask(taskList.get(randomTask).getId());
         }
         Collections.reverse(historyList);
         Assertions.assertTrue(readTaskBackedFile(taskList));

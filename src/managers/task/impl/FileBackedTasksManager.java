@@ -167,8 +167,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
 
-
-
     protected void save() {
         saveTasks();
         HistoryFileBackInitializer.saveHistory(historyManager, historyPath);
@@ -302,7 +300,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
         static String historyToString(HistoryManager manager) {
             return manager.getHistory().stream()
-                    .map(Task::getTaskId)
+                    .map(Task::getId)
                     .map(String::valueOf)
                     .collect(Collectors.joining(","));
        }

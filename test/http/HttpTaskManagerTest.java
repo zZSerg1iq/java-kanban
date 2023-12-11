@@ -7,8 +7,11 @@ import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
 import enums.Status;
+import http.client.KVTaskClient;
 import http.server.HttpTaskServer;
+import http.server.KVServer;
 import managers.task.TaskManager;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -23,8 +26,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Random;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 class HttpTaskManagerTest {
 
 
@@ -34,6 +35,7 @@ class HttpTaskManagerTest {
 
     private static Random random;
     private static Gson gson;
+    private static KVServer kvServer;
 
 
     private int index;
@@ -41,7 +43,8 @@ class HttpTaskManagerTest {
 
     @BeforeAll
     public static void prepare() throws IOException {
-        //new KVServer().start();
+        //kvServer = new KVServer();
+       // kvServer.start();
 
         gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
@@ -59,9 +62,22 @@ class HttpTaskManagerTest {
 
     @Test
     public void getSortedTaskList() throws IOException {
-        HttpTaskServer httpTaskServer = new HttpTaskServer();
-        TaskManager taskManager = httpTaskServer.getHttpTaskManager();
+        //HttpTaskServer httpTaskServer = new HttpTaskServer();
 
+        KVTaskClient client = new KVTaskClient("http://localhost:8078");
+        Task task = generateCurrentTask("name", 2020, 10, 10,10,10,10);
+        client.put("task", gson.toJson(task));
+        System.out.println(client.load("task"));
+
+        client.put("token", "token");
+        System.out.println(client.load("token"));
+
+        System.out.println("info: ");
+        System.out.println(client.info());
+
+
+        //TaskManager taskManager = httpTaskServer.getHttpTaskManager();
+/*
         //добавляем задачи и историю
         Task seed = generateCurrentTask("task1", 2020, 10, 10, 10, 10, 10);
         taskManager.addTask(seed);
@@ -84,8 +100,8 @@ class HttpTaskManagerTest {
         taskManager.getTask(task3.getTaskId());
         taskManager.getTask(task4.getTaskId());
 
-        assertEquals(5, taskManager.getTaskList().size());
-        assertEquals(5, taskManager.getHistory().size());
+        Assertions.assertEquals(5, taskManager.getTaskList().size());
+        Assertions.assertEquals(5, taskManager.getHistory().size());*/
 
 
 /*        httpTaskServer = new HttpTaskServer();

@@ -67,7 +67,7 @@ public class EpicEndpointHandler extends EndpointHandler {
         EpicTask task = gson.fromJson(body, EpicTask.class);
 
         //если id нету ( = 0 ), это добавление новой
-        if (task.getTaskId() == 0) {
+        if (task.getId() == 0) {
             taskManager.addEpicTask(task);
             return new ResponseEntity("Эпик добавлен", 201);
         } else {

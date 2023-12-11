@@ -22,7 +22,7 @@ public class SubTask extends Task{
     }
 
     public SubTask(SubTask subTask) {
-        super(subTask.getTaskId(), subTask.getTaskName(), subTask.getStatus(), subTask.getTaskDescription(), subTask.getStartTime(), subTask.getDuration());
+        super(subTask.getId(), subTask.getTaskName(), subTask.getStatus(), subTask.getTaskDescription(), subTask.getStartTime(), subTask.getDuration());
         this.hostTaskID = subTask.getHostTaskID();
     }
 
@@ -40,7 +40,7 @@ public class SubTask extends Task{
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         return TaskType.SUB.name()+ ","
-                + this.getTaskId()+ ","
+                + this.getId()+ ","
                 + this.getTaskName()+ ","
                 + this.getStatus()+ ","
                 + getTaskDescription()+ ","

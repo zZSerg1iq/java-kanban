@@ -79,7 +79,7 @@ public class SubtaskEndpointHandler extends EndpointHandler {
         SubTask task = gson.fromJson(body, SubTask.class);
 
         //если id нету ( = 0 ), это добавление новой
-        if (task.getTaskId() == 0) {
+        if (task.getId() == 0) {
             taskManager.addSubTask(task);
             return new ResponseEntity("Subtask добавлен", 201);
         } else {

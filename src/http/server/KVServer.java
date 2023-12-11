@@ -1,14 +1,15 @@
 package http.server;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 public class KVServer {
@@ -24,29 +25,31 @@ public class KVServer {
         server.createContext("/save", this::save);
         server.createContext("/load", this::load);
         server.createContext("/stop", this::stop);
+        server.createContext("/info", this::info);
     }
 
     private void load(HttpExchange h) throws IOException {
         try {
-       //     System.out.println("\n/save");
+            System.out.println("\n/load");
             if (!hasAuth(h)) {
-          //      System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
+                System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
                 h.sendResponseHeaders(403, 0);
                 return;
             }
-
             if ("GET".equals(h.getRequestMethod())) {
-                String key = h.getRequestURI().getPath().substring("/save/".length());
+                String key = h.getRequestURI().getPath().substring("/load/".length());
+                System.out.println("key :" + key);
+
                 if (key.isEmpty()) {
-           //         System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
+                    System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
                     h.sendResponseHeaders(400, 0);
                     return;
                 }
-           //     System.out.println("Значение ключа " + key + " возвращено!:");
+                System.out.println("Значение ключа " + key + " возвращено!:");
                 h.sendResponseHeaders(200, 0);
                 sendText(h, data.get(key));
             } else {
-         //       System.out.println("/save ждёт GET-запрос, а получил: " + h.getRequestMethod());
+                System.out.println("/save ждёт GET-запрос, а получил: " + h.getRequestMethod());
                 h.sendResponseHeaders(405, 0);
             }
         } finally {
@@ -58,28 +61,28 @@ public class KVServer {
         try {
             System.out.println("\n/save");
             if (!hasAuth(h)) {
-              //  System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
+                System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
                 h.sendResponseHeaders(403, 0);
                 return;
             }
             if ("POST".equals(h.getRequestMethod())) {
                 String key = h.getRequestURI().getPath().substring("/save/".length());
                 if (key.isEmpty()) {
-                  //  System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
+                    System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
                     h.sendResponseHeaders(400, 0);
                     return;
                 }
                 String value = readText(h);
                 if (value.isEmpty()) {
-                  //  System.out.println("Value для сохранения пустой. value указывается в теле запроса");
+                    System.out.println("Value для сохранения пустой. value указывается в теле запроса");
                     h.sendResponseHeaders(400, 0);
                     return;
                 }
                 data.put(key, value);
-               // System.out.println("Значение для ключа " + key + " успешно обновлено!:");
+                System.out.println("Значение для ключа " + key + " успешно обновлено!:");
                 h.sendResponseHeaders(200, 0);
             } else {
-              //  System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
+                System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
                 h.sendResponseHeaders(405, 0);
             }
         } finally {
@@ -89,11 +92,11 @@ public class KVServer {
 
     private void register(HttpExchange h) throws IOException {
         try {
-       //     System.out.println("\n/register");
+            //     System.out.println("\n/register");
             if ("GET".equals(h.getRequestMethod())) {
                 sendText(h, apiToken);
             } else {
-            //    System.out.println("/register ждёт GET-запрос, а получил " + h.getRequestMethod());
+                //    System.out.println("/register ждёт GET-запрос, а получил " + h.getRequestMethod());
                 h.sendResponseHeaders(405, 0);
             }
         } finally {
@@ -113,6 +116,13 @@ public class KVServer {
         System.exit(0);
     }
 
+    public void info(HttpExchange h) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        data.forEach((s, s2) -> stringBuilder.append(s).append(": ").append(s2).append("\n"));
+        String result = stringBuilder.length() > 0 ? stringBuilder.toString() : "Данные отсутствуют";
+        sendText(h, result);
+    }
+
     private String generateApiToken() {
         return "" + System.currentTimeMillis();
     }
@@ -127,9 +137,13 @@ public class KVServer {
     }
 
     protected void sendText(HttpExchange h, String text) throws IOException {
+        System.out.println("text: " + text);
         byte[] resp = text.getBytes(UTF_8);
         h.getResponseHeaders().add("Content-Type", "application/json");
         h.sendResponseHeaders(200, resp.length);
-        h.getResponseBody().write(resp);
+        try (OutputStream outputStream = h.getResponseBody()) {
+            outputStream.write(resp);
+        }
+        //h.getResponseBody().write(resp);
     }
 }

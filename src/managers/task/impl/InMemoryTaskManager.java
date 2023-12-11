@@ -57,11 +57,11 @@ public class InMemoryTaskManager implements TaskManager {
 
         addTaskDateTime(task);
 
-        task.setTaskId(initId(task.getTaskId()));
+        task.setId(initId(task.getId()));
         task.setStatus(Status.NEW);
 
         sortedTaskList.add(task);
-        return taskMap.put(task.getTaskId(), task);
+        return taskMap.put(task.getId(), task);
     }
 
     @Override
@@ -84,9 +84,9 @@ public class InMemoryTaskManager implements TaskManager {
             throw new NullPointerException("Task is not valid");
         }
 
-        if (taskMap.containsKey(task.getTaskId())) {
+        if (taskMap.containsKey(task.getId())) {
             updateTaskDateTime(task);
-            return taskMap.put(task.getTaskId(), task);
+            return taskMap.put(task.getId(), task);
         }
         throw new RuntimeException("Task " + task + " not found");
     }
@@ -97,7 +97,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         if (task != null) {
             sortedTaskList.remove(task);
-            historyManager.remove(task.getTaskId());
+            historyManager.remove(task.getId());
             removeTaskDateTime(task);
         }
         return task;
@@ -107,7 +107,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeAllTasks() {
         for (Task task : taskMap.values()) {
             sortedTaskList.remove(task);
-            historyManager.remove(task.getTaskId());
+            historyManager.remove(task.getId());
             removeTaskDateTime(task);
         }
         taskMap.clear();
@@ -119,23 +119,22 @@ public class InMemoryTaskManager implements TaskManager {
             throw new NullPointerException("Epic task is not valid");
         }
         task.setStatus(Status.NEW);
-        task.setTaskId(initId(task.getTaskId()));
-        return epicTaskMap.put(task.getTaskId(), task);
+        task.setId(initId(task.getId()));
+        return epicTaskMap.put(task.getId(), task);
     }
 
     @Override
     public EpicTask getEpicTask(int taskId) {
-
         if (epicTaskMap.containsKey(taskId)) {
             historyManager.add(epicTaskMap.get(taskId));
         }
 
-       /* EpicTask epicTask = epicTaskMap.get(taskId);
+        var epic = epicTaskMap.get(taskId);
 
-        if (epicTask != null){
-            return new EpicTask(epicTask);
-        }*/
-        return epicTaskMap.get(taskId);
+        if (epic != null){
+            return new EpicTask(epic);
+        }
+        return null;
     }
 
     @Override
@@ -144,9 +143,9 @@ public class InMemoryTaskManager implements TaskManager {
             throw new NullPointerException("Epic task is not valid");
         }
 
-        EpicTask oldEpic = epicTaskMap.get(task.getTaskId());
+        EpicTask oldEpic = epicTaskMap.get(task.getId());
         if (oldEpic != null) {
-            epicTaskMap.put(task.getTaskId(), task);
+            epicTaskMap.put(task.getId(), task);
             task.resetStatus();
             return oldEpic;
         }
@@ -169,9 +168,9 @@ public class InMemoryTaskManager implements TaskManager {
         if (epicTask != null) {
             var subTaskList = epicTask.getSubTaskList();
             for (SubTask subtask : subTaskList) {
-                subTaskMap.remove(subtask.getTaskId());
+                subTaskMap.remove(subtask.getId());
                 sortedTaskList.remove(subtask);
-                historyManager.remove(subtask.getTaskId());
+                historyManager.remove(subtask.getId());
                 removeTaskDateTime(subtask);
             }
             epicTaskMap.remove(taskId);
@@ -189,8 +188,8 @@ public class InMemoryTaskManager implements TaskManager {
             var subTaskList = epicTask.getSubTaskList();
 
             for (SubTask subtask : subTaskList) {
-                subTaskMap.remove(subtask.getTaskId());
-                historyManager.remove(subtask.getTaskId());
+                subTaskMap.remove(subtask.getId());
+                historyManager.remove(subtask.getId());
                 removeTaskDateTime(subtask);
             }
             iterator.remove();
@@ -206,7 +205,7 @@ public class InMemoryTaskManager implements TaskManager {
 
         addTaskDateTime(task);
 
-        task.setTaskId(initId(task.getTaskId()));
+        task.setId(initId(task.getId()));
         task.setStatus(Status.NEW);
 
         EpicTask epicTask = epicTaskMap.get(task.getHostTaskID());
@@ -218,7 +217,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
 
         sortedTaskList.add(task);
-        return subTaskMap.put(task.getTaskId(), task);
+        return subTaskMap.put(task.getId(), task);
     }
 
     @Override
@@ -240,10 +239,10 @@ public class InMemoryTaskManager implements TaskManager {
             throw new NullPointerException("SubTask task is not valid");
         }
 
-        if (subTaskMap.containsKey(task.getTaskId())) {
+        if (subTaskMap.containsKey(task.getId())) {
             updateTaskDateTime(task);
 
-            SubTask subTask = subTaskMap.put(task.getTaskId(), task);
+            SubTask subTask = subTaskMap.put(task.getId(), task);
             epicTaskMap.get(task.getHostTaskID()).resetStatus();
             return subTask;
         }
@@ -261,7 +260,7 @@ public class InMemoryTaskManager implements TaskManager {
                 epicTask.subTaskRemove(subTask);
                 epicTask.resetStatus();
                 sortedTaskList.remove(subTask);
-                historyManager.remove(subTask.getTaskId());
+                historyManager.remove(subTask.getId());
                 removeTaskDateTime(subTask);
             }
         }
@@ -328,9 +327,9 @@ public class InMemoryTaskManager implements TaskManager {
     private void updateTaskDateTime(Task task) {
         Task oldTask;
         if (task.getClass().equals(Task.class)){
-            oldTask = taskMap.get(task.getTaskId());
+            oldTask = taskMap.get(task.getId());
         } else {
-            oldTask = subTaskMap.get(task.getTaskId());
+            oldTask = subTaskMap.get(task.getId());
         }
 
         removeTaskDateTime(oldTask);

@@ -16,7 +16,6 @@ import managers.Managers;
 import managers.task.TaskManager;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -78,7 +77,7 @@ public class HttpTaskServer implements HttpHandler {
                 break;
             }
             case STOP: {
-                stopServer(exchange);
+                //stopServer(exchange);
                 break;
             }
             default:
@@ -86,12 +85,6 @@ public class HttpTaskServer implements HttpHandler {
         }
 
         sendResponse(exchange, response.getAnswer(), response.getCode());
-    }
-
-    private void stopServer(HttpExchange exchange) throws IOException {
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        sendResponse(exchange, "Сервер остановлен", 200);
-        System.exit(0);
     }
 
     private Endpoint getEndpoint(URI requestUri) {
@@ -119,30 +112,14 @@ public class HttpTaskServer implements HttpHandler {
                 }
             }
         }
+
         return Endpoint.UNKNOWN;
     }
 
-/*    private void sendResponse(HttpExchange exchange, String response, int code) {
-        try {
-            byte[] b = response.getBytes();
-            OutputStream os = exchange.getResponseBody(); // получаем OutputStream
-            exchange.sendResponseHeaders(code, b.length);  // отправляем заголовки ответа
-            os.write(b);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }*/
-
     protected void sendResponse(HttpExchange h, String text, int code) throws IOException {
         byte[] resp = text.getBytes(UTF_8);
-
-        System.out.println(resp.length);
-
         h.getResponseHeaders().add("Content-Type", "application/json");
         h.sendResponseHeaders(code, resp.length);
-
-
-
         h.getResponseBody().write(resp);
         h.close();
     }

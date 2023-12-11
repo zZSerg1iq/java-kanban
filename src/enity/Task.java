@@ -19,7 +19,7 @@ public class Task implements Comparable<Task> {
         return this.startTime.compareTo(otherTask.startTime);
     }
 
-    private int taskId = 0;
+    private int id = 0;
     private TaskType type;
     private String taskName;
     private String taskDescription;
@@ -36,8 +36,8 @@ public class Task implements Comparable<Task> {
         typeFieldInit();
     }
 
-    public Task(int taskId, String taskName, Status status, String taskDescription, LocalDateTime startTime, int durationInMinutes) {
-        this.taskId = taskId;
+    public Task(int id, String taskName, Status status, String taskDescription, LocalDateTime startTime, int durationInMinutes) {
+        this.id = id;
         this.taskName = taskName;
         this.status = status;
         this.taskDescription = taskDescription;
@@ -48,7 +48,7 @@ public class Task implements Comparable<Task> {
     }
 
     public Task(Task task) {
-        this.taskId = task.getTaskId();
+        this.id = task.getId();
         this.taskName = task.getTaskName();
         this.status = task.getStatus();
         this.taskDescription = task.getTaskDescription();
@@ -85,8 +85,8 @@ public class Task implements Comparable<Task> {
         this.taskDescription = taskDescription;
     }
 
-    public int getTaskId() {
-        return taskId;
+    public int getId() {
+        return id;
     }
 
     public Status getStatus() {
@@ -97,8 +97,8 @@ public class Task implements Comparable<Task> {
         this.status = status;
     }
 
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public TaskType getType() {
@@ -130,7 +130,7 @@ public class Task implements Comparable<Task> {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         return TaskType.REGULAR.name()+ ","
-                + this.getTaskId()+ ","
+                + this.getId()+ ","
                 + this.getTaskName()+ ","
                 + this.getStatus()+ ","
                 + getTaskDescription()+ ","
@@ -143,11 +143,11 @@ public class Task implements Comparable<Task> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return taskId == task.taskId && duration == task.duration && type == task.type && Objects.equals(taskName, task.taskName) && Objects.equals(taskDescription, task.taskDescription) && status == task.status && Objects.equals(startTime, task.startTime);
+        return id == task.id && duration == task.duration && type == task.type && Objects.equals(taskName, task.taskName) && Objects.equals(taskDescription, task.taskDescription) && status == task.status && Objects.equals(startTime, task.startTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(taskId, type, taskName, taskDescription, status, startTime, duration);
+        return Objects.hash(id, type, taskName, taskDescription, status, startTime, duration);
     }
 }
