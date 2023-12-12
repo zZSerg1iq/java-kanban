@@ -1,13 +1,15 @@
 package http;
 
-import adaper.LocalDateTimeAdapter;
-import adaper.StatusAdapter;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
 import enums.Status;
 import http.server.HttpTaskServer;
+import managers.Managers;
 import managers.task.TaskManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -29,23 +31,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class HttpTaskServerTest {
 
-    /**
-     * Проект оказался очень очень сложным для меня. Я в нем по настоящему запутался.
-     * <p>
-     * Максимально старался успеть до дедлайна, но времени было очень очень очень мало
-     * если можно, я бы хотел доделать проект, осталось немного но до дедлайна не успел по
-     * причине того что ловил баги которые так и не поймал. Переписал много всего что бы от них избавиться
-     * <p>
-     * Было бы очень очень здорово, если бы Вы дали мне возможность все доделать.
-     * Спасибо)
-     */
-
-
     private static final String httpServerUrl = "http://localhost:8080";
     private static final String KVServerUrl = "http://localhost:8078";
-    String subtaskPath = "/tasks/subtask";
-    String taskPath = "/tasks/task";
-    String epicPath = "/tasks/epic";
+
+    private final String subtaskPath = "/tasks/subtask";
+    private final String taskPath = "/tasks/task";
+    private final String epicPath = "/tasks/epic";
 
     private static Random random;
     private static Gson gson;
@@ -59,19 +50,14 @@ class HttpTaskServerTest {
     public static void setUp() throws IOException {
         httpTaskServer = new HttpTaskServer();
         taskManager = httpTaskServer.getHttpTaskManager();
-
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Status.class, new StatusAdapter())
-                .create();
-
+        gson = Managers.getDefaultGson();
         random = new Random();
     }
 
 
-    //@Test
+    @Test
     void testForAllTaskEndpoint() {
-        
+
 
         /**
          *  @endpoint  /tasks/task     ( add )
@@ -102,8 +88,6 @@ class HttpTaskServerTest {
         for (Task t : taskList) {
             assertEquals(Status.NEW, t.getStatus());
         }
-
-
 
 
         /**
@@ -197,9 +181,9 @@ class HttpTaskServerTest {
         assertEquals(0, taskList.size());
     }
 
-    //@Test
+    @Test
     void addForAllEpicAndSubTaskEndpoints() {
-        
+
 
         /**
          *  @endpoint  /tasks/task     ( add )
@@ -306,29 +290,19 @@ class HttpTaskServerTest {
         assertEquals(epicList.get(0), mainEpic);
         int epicId = mainEpic.getId();
 
-
-
-
         SubTask seed = generateCurrentSubTask("task1", 2020, 10, 10, 10, 10, 10, epicId);
         assertEquals("Subtask добавлен", sendPost(subtaskPath, seed));
-
         SubTask task1 = generateSubTask(seed, epicId);
         assertEquals("Subtask добавлен", sendPost(subtaskPath, task1));
-
         SubTask task2 = generateSubTask(task1, epicId);
         assertEquals("Subtask добавлен", sendPost(subtaskPath, task2));
-
         SubTask task3 = generateSubTask(task2, epicId);
         assertEquals("Subtask добавлен", sendPost(subtaskPath, task3));
-
         SubTask task4 = generateSubTask(task3, epicId);
         assertEquals("Subtask добавлен", sendPost(subtaskPath, task4));
 
         mainEpic = gson.fromJson(sendGet(epicPath, epicList.get(0).getId()), EpicTask.class);
         assertEquals(5, mainEpic.getSubTaskList().size());
-
-
-
 
 
         /**
@@ -340,8 +314,6 @@ class HttpTaskServerTest {
         for (SubTask t : subTaskList) {
             assertEquals(Status.NEW, t.getStatus());
         }
-
-
 
 
         /**
@@ -412,7 +384,6 @@ class HttpTaskServerTest {
         assertEquals(0, newCount);
         assertEquals(2, doneCount);
         assertEquals(3, inProgressCount);
-
 
 
         /**
@@ -497,7 +468,7 @@ class HttpTaskServerTest {
 
     private String sendDelete(String endpoint, int id) {
 
-        String result = null;
+        String result;
 
         HttpClient client = HttpClient.newHttpClient();
 

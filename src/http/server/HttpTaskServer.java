@@ -1,24 +1,19 @@
 package http.server;
 
-import adaper.LocalDateTimeAdapter;
-import adaper.StatusAdapter;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import enity.ResponseEntity;
-import enums.Status;
-import http.server.handlers.TaskEndpointHandler;
 import http.server.handlers.EpicEndpointHandler;
 import http.server.handlers.SubtaskEndpointHandler;
+import http.server.handlers.TaskEndpointHandler;
 import managers.Managers;
 import managers.task.TaskManager;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.time.LocalDateTime;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -27,10 +22,9 @@ public class HttpTaskServer implements HttpHandler {
     enum Endpoint {TASKS, TASK, EPIC, SUB, HISTORY, UNKNOWN, STOP}
 
     private final int PORT = 8080;
-
-    private TaskManager httpTaskManager;
-
+    private final TaskManager httpTaskManager;
     private final Gson gson;
+    private final String SERVER_URL = "http://localhost:8078";
 
     public HttpTaskServer() throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
@@ -38,12 +32,9 @@ public class HttpTaskServer implements HttpHandler {
         server.createContext("/stop", this);
         server.start();
 
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Status.class, new StatusAdapter())
-                .create();
+        gson = Managers.getDefaultGson();
 
-        httpTaskManager = Managers.getDefault("http://localhost:8078");
+        httpTaskManager = Managers.getDefault(SERVER_URL);
     }
 
     public TaskManager getHttpTaskManager() {
@@ -77,7 +68,7 @@ public class HttpTaskServer implements HttpHandler {
                 break;
             }
             case STOP: {
-                //stopServer(exchange);
+                stopServer(exchange);
                 break;
             }
             default:
@@ -85,6 +76,16 @@ public class HttpTaskServer implements HttpHandler {
         }
 
         sendResponse(exchange, response.getAnswer(), response.getCode());
+    }
+
+    private void stopServer(HttpExchange exchange) {
+        try {
+            sendResponse(exchange, "Сервер остановлен", 200);
+            System.exit(0);
+        }catch (IOException e){
+        }finally {
+            exchange.close();
+        }
     }
 
     private Endpoint getEndpoint(URI requestUri) {

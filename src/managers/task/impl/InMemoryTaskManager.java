@@ -70,12 +70,12 @@ public class InMemoryTaskManager implements TaskManager {
             historyManager.add(taskMap.get(taskId));
         }
 
-        /*Task task = taskMap.get(taskId);
+        Task task = taskMap.get(taskId);
 
         if (task != null){
             return new Task(task);
-        }*/
-        return taskMap.get(taskId);
+        }
+        return task;
     }
 
     @Override

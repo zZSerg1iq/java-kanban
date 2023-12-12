@@ -1,48 +1,45 @@
 package managers.task.impl;
 
-import adaper.LocalDateTimeAdapter;
-import adaper.StatusAdapter;
-import com.google.gson.*;
-import enums.Status;
 import http.client.KVTaskClient;
 import managers.Managers;
 
-import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class HttpTaskManager extends FileBackedTasksManager {
 
-    private static String defaultFilepath = "resources";
+    private static final String defaultFilepath = "resources";
 
     private final KVTaskClient client;
-    private final Gson gson;
-
 
     public HttpTaskManager(String url) {
         super(Managers.getDefaultHistory(), defaultFilepath);
-
         client = new KVTaskClient(url);
-
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Status.class, new StatusAdapter())
-                .create();
-
         load();
     }
 
     @Override
     protected void save() {
-        String task = taskMapToString();
-        client.put("taskMap", gson.toJson(task));
+        String taskMap = taskMapToString();
+        if (!taskMap.isEmpty()) {
+            client.put("taskMap", taskMap);
+        }
 
-        String epic = epicMapToString();
-        client.put("epicMap", gson.toJson(epic));
+        String epicMap = epicMapToString();
+        if (!epicMap.isEmpty()) {
+            client.put("epicMap", epicMap);
+        }
 
-        String subtask = subtaskMapToString();
-        client.put("subtaskMap", gson.toJson(subtask));
+        String subtaskMap = subtaskMapToString();
+        if (!subtaskMap.isEmpty()) {
+            client.put("subtaskMap", subtaskMap);
+        }
 
-        //  System.out.println("-history-");
-        client.put("history", gson.toJson(getHistory()));
+        String history = getHistoryString();
+        if (!history.isEmpty()) {
+            client.put("history", history);
+        }
     }
 
     @Override
@@ -51,13 +48,36 @@ public class HttpTaskManager extends FileBackedTasksManager {
             return;
         }
 
-/*        System.out.println("-----------------------------");
-        System.out.println(client.load("taskMap"));
-        System.out.println(client.load("epicMap"));
-        System.out.println(client.load("subtaskMap"));
-        System.out.println(client.load("history"));
-        System.out.println("-----------------------------");*/
+        List<String> taskList = Arrays
+                .stream(client.load("taskMap").split("\n"))
+                .collect(Collectors.toList());
 
-        //List<Task> tasksFromServer = gson.fromJson(client.load("taskMap"), new TypeToken<List<Task>>();
+        if (!taskList.contains("Данные по ключу не найдены")) {
+            taskList.forEach(this::tasksBackFromString);
+            System.out.println("Восстановлено: "+taskList.size() + " задач");
+        }
+
+        List<String> epicList = Arrays
+                .stream(client.load("epicMap").split("\n"))
+                .collect(Collectors.toList());
+        if (!epicList.contains("Данные по ключу не найдены")) {
+            epicList.forEach(this::tasksBackFromString);
+            System.out.println("Восстановлено: "+epicList.size() + " эпиков");
+        }
+
+        List<String> subTaskList = Arrays
+                .stream(client.load("subtaskMap").split("\n"))
+                .collect(Collectors.toList());
+        if (!epicList.contains("Данные по ключу не найдены")) {
+            subTaskList.forEach(this::tasksBackFromString);
+            System.out.println("Восстановлено: "+subTaskList.size() + " сабтасков");
+        }
+
+        String history = client.load("history");
+        if (!"Данные по ключу не найдены".equals(history)) {
+            initHistory(history);
+            System.out.println("История восстановлена");
+        }
     }
+
 }

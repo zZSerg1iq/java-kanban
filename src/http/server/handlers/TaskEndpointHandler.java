@@ -1,8 +1,8 @@
 package http.server.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
-import enity.Task;
 import enity.ResponseEntity;
+import enity.Task;
 import managers.task.TaskManager;
 
 public class TaskEndpointHandler extends EndpointHandler {
@@ -73,7 +73,7 @@ public class TaskEndpointHandler extends EndpointHandler {
             //если id есть, это изменение
             System.out.println(task);
             var result = taskManager.updateTask(task);
-            if (result == null){
+            if (result == null) {
                 return new ResponseEntity("Задача не найдена", 404);
             }
             return new ResponseEntity("Задача обновлена", 201);

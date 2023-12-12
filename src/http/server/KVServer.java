@@ -2,17 +2,21 @@ package http.server;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import excepton.KVExchangeException;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-
 public class KVServer {
+    public static void main(String[] args) throws IOException {
+        new KVServer().start();
+    }
+
+
     public static final int PORT = 8078;
     private final String apiToken;
     private final HttpServer server;
@@ -24,83 +28,103 @@ public class KVServer {
         server.createContext("/register", this::register);
         server.createContext("/save", this::save);
         server.createContext("/load", this::load);
+        server.createContext("/clear", this::clear);
         server.createContext("/stop", this::stop);
         server.createContext("/info", this::info);
     }
 
-    private void load(HttpExchange h) throws IOException {
+    private void clear(HttpExchange exchange) {
         try {
-            System.out.println("\n/load");
-            if (!hasAuth(h)) {
-                System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
-                h.sendResponseHeaders(403, 0);
-                return;
-            }
-            if ("GET".equals(h.getRequestMethod())) {
-                String key = h.getRequestURI().getPath().substring("/load/".length());
-                System.out.println("key :" + key);
+            exchange.sendResponseHeaders(200, 0);
+            sendText(exchange, "KVServer очищен");
+            data.clear();
+        } catch (IOException e) {
+            throw new KVExchangeException("При обработке запроса по очистке сервера возникла ошибка: " + e);
+        } finally {
+            exchange.close();
+        }
 
-                if (key.isEmpty()) {
-                    System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
-                    h.sendResponseHeaders(400, 0);
+    }
+
+
+    private void load(HttpExchange exchange) {
+        try {
+            String key = exchange.getRequestURI().getPath().substring("/load/".length());
+
+            if ((exchange.getRequestMethod()).equals("GET")) {
+                if (!hasAuth(exchange)) {
+                    System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
+                    exchange.sendResponseHeaders(403, 0);
                     return;
                 }
-                System.out.println("Значение ключа " + key + " возвращено!:");
-                h.sendResponseHeaders(200, 0);
-                sendText(h, data.get(key));
+
+                if (data.containsKey(key)) {
+                    exchange.sendResponseHeaders(200, 0);
+                    sendText(exchange, data.get(key));
+                } else {
+                    exchange.sendResponseHeaders(200, 0);
+                    sendText(exchange, "Данные по ключу не найдены");
+                }
+
             } else {
-                System.out.println("/save ждёт GET-запрос, а получил: " + h.getRequestMethod());
-                h.sendResponseHeaders(405, 0);
+                System.out.println("/load ждёт GET-запрос, а получил: " + exchange.getRequestMethod());
+                exchange.sendResponseHeaders(405, 0);
             }
+        } catch (IOException e) {
+            throw new KVExchangeException("При обработке запроса загрузки возникло исключение: " + e);
         } finally {
-            h.close();
+            exchange.close();
         }
     }
 
-    private void save(HttpExchange h) throws IOException {
+    private void save(HttpExchange exchange) {
         try {
             System.out.println("\n/save");
-            if (!hasAuth(h)) {
+            if (!hasAuth(exchange)) {
                 System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
-                h.sendResponseHeaders(403, 0);
+                exchange.sendResponseHeaders(403, 0);
                 return;
             }
-            if ("POST".equals(h.getRequestMethod())) {
-                String key = h.getRequestURI().getPath().substring("/save/".length());
+            if ("POST".equals(exchange.getRequestMethod())) {
+                String key = exchange.getRequestURI().getPath().substring("/save/".length());
                 if (key.isEmpty()) {
                     System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
-                    h.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, 0);
                     return;
                 }
-                String value = readText(h);
+                String value = readText(exchange);
                 if (value.isEmpty()) {
                     System.out.println("Value для сохранения пустой. value указывается в теле запроса");
-                    h.sendResponseHeaders(400, 0);
+                    exchange.sendResponseHeaders(400, 0);
                     return;
                 }
                 data.put(key, value);
-                System.out.println("Значение для ключа " + key + " успешно обновлено!:");
-                h.sendResponseHeaders(200, 0);
+                // System.out.println("Значение для ключа '" + key + "' успешно добавлено/обновлено!");
+                exchange.sendResponseHeaders(201, 0);
             } else {
-                System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
-                h.sendResponseHeaders(405, 0);
+                System.out.println("/save ждёт POST-запрос, а получил: " + exchange.getRequestMethod());
+                exchange.sendResponseHeaders(405, 0);
             }
+        } catch (IOException e) {
+            throw new KVExchangeException("При обработке запроса загрузки возникло исключение: " + e);
         } finally {
-            h.close();
+            exchange.close();
         }
     }
 
-    private void register(HttpExchange h) throws IOException {
+    private void register(HttpExchange exchange) {
         try {
-            //     System.out.println("\n/register");
-            if ("GET".equals(h.getRequestMethod())) {
-                sendText(h, apiToken);
+            System.out.println("\n/register");
+            if ("GET".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(200, 0);
+                sendText(exchange, apiToken);
             } else {
-                //    System.out.println("/register ждёт GET-запрос, а получил " + h.getRequestMethod());
-                h.sendResponseHeaders(405, 0);
+                exchange.sendResponseHeaders(405, 0);
             }
+        } catch (IOException e) {
+            throw new KVExchangeException("При обработке запроса загрузки возникло исключение: " + e);
         } finally {
-            h.close();
+            exchange.close();
         }
     }
 
@@ -111,16 +135,28 @@ public class KVServer {
         server.start();
     }
 
-    public void stop(HttpExchange h) throws IOException {
-        sendText(h, "KVServer остановлен");
-        System.exit(0);
+    public void stop(HttpExchange h) {
+        try {
+            sendText(h, "KVServer остановлен");
+            System.exit(0);
+        } catch (IOException e){}
+        finally {
+            h.close();
+        }
     }
 
-    public void info(HttpExchange h) throws IOException {
-        StringBuilder stringBuilder = new StringBuilder();
-        data.forEach((s, s2) -> stringBuilder.append(s).append(": ").append(s2).append("\n"));
-        String result = stringBuilder.length() > 0 ? stringBuilder.toString() : "Данные отсутствуют";
-        sendText(h, result);
+    public void info(HttpExchange exchange) {
+        try {
+            StringBuilder stringBuilder = new StringBuilder();
+            exchange.sendResponseHeaders(200, 0);
+            data.forEach((s, s2) -> stringBuilder.append(s).append(": ").append(s2).append("\n"));
+            String result = stringBuilder.length() > 0 ? stringBuilder.toString() : "Данные отсутствуют";
+            sendText(exchange, result);
+        } catch (IOException e) {
+            throw new KVExchangeException("При обработке запроса загрузки возникло исключение: " + e);
+        } finally {
+            exchange.close();
+        }
     }
 
     private String generateApiToken() {
@@ -136,14 +172,12 @@ public class KVServer {
         return new String(h.getRequestBody().readAllBytes(), UTF_8);
     }
 
-    protected void sendText(HttpExchange h, String text) throws IOException {
-        System.out.println("text: " + text);
+    protected void sendText(HttpExchange exchange, String text) throws IOException {
         byte[] resp = text.getBytes(UTF_8);
-        h.getResponseHeaders().add("Content-Type", "application/json");
-        h.sendResponseHeaders(200, resp.length);
-        try (OutputStream outputStream = h.getResponseBody()) {
-            outputStream.write(resp);
-        }
-        //h.getResponseBody().write(resp);
+        exchange.getResponseHeaders().add("Content-Type", "application/json");
+        exchange.getResponseBody().write(resp);
+        exchange.close();
     }
+
+
 }

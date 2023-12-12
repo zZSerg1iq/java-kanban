@@ -1,48 +1,13 @@
-EPIC,1,New Epic,NEW,Epic,null,0
-EPIC,2,New Epic,NEW,Epic,null,0
-EPIC,3,New Epic,NEW,Epic,null,0
-EPIC,4,New Epic,NEW,Epic,null,0
-EPIC,5,New Epic,NEW,Epic,null,0
-EPIC,6,New Epic,NEW,Epic,null,0
-EPIC,7,New Epic,NEW,Epic,null,0
-EPIC,8,New Epic,NEW,Epic,null,0
-EPIC,9,New Epic,NEW,Epic,2020-01-01 01:01:01,2
-EPIC,10,New Epic,NEW,Epic,null,0
-EPIC,12,New Epic,NEW,Epic,null,0
+EPIC,16,New Epic,DONE,Epic,2022-02-26 04:43:34,100
+EPIC,1,New Epic,NEW,Epic,2020-01-01 01:01:01,2
+EPIC,19,New Epic,NEW,Epic,2022-02-04 06:16:29,100
+EPIC,4,New Epic,NEW,Epic,1999-03-07 12:12:12,1156
+EPIC,22,New Epic,IN_PROGRESS,Epic,2022-04-22 01:55:00,100
 EPIC,13,New Epic,NEW,Epic,null,0
-EPIC,14,New Epic,NEW,Epic,null,0
-EPIC,16,New Epic,NEW,Epic,null,0
-EPIC,17,New Epic,NEW,Epic,1999-03-07 12:12:12,1156
-EPIC,19,New Epic,NEW,Epic,null,0
-EPIC,21,New Epic,NEW,Epic,null,0
-EPIC,22,New Epic,NEW,Epic,null,0
-EPIC,23,New Epic,NEW,Epic,null,0
-EPIC,25,New Epic,NEW,Epic,null,0
-EPIC,26,New Epic,NEW,Epic,null,0
-EPIC,27,New Epic,NEW,Epic,null,0
-EPIC,29,New Epic,NEW,Epic,null,0
-EPIC,31,New Epic,NEW,Epic,null,0
-EPIC,32,New Epic,NEW,Epic,null,0
-EPIC,34,New Epic,NEW,Epic,null,0
-EPIC,35,New Epic,NEW,Epic,null,0
-EPIC,36,New Epic,NEW,Epic,null,0
-EPIC,37,New Epic,NEW,Epic,null,0
-EPIC,39,New Epic,DONE,Epic,2022-04-04 01:32:48,100
-EPIC,40,New Epic,NEW,Epic,null,0
-EPIC,41,New Epic,NEW,Epic,null,0
-EPIC,43,New Epic,NEW,Epic,null,0
-EPIC,45,New Epic,NEW,Epic,2022-02-14 08:20:36,100
-EPIC,46,New Epic,NEW,Epic,null,0
-EPIC,49,New Epic,NEW,Epic,null,0
-EPIC,50,New Epic,IN_PROGRESS,Epic,2022-04-21 18:08:45,100
-EPIC,54,New Epic,NEW,Epic,null,0
-EPIC,55,New Epic,NEW,Epic,2024-01-01 01:01:01,2
-EPIC,57,New Epic,DONE,Epic,2022-04-12 17:10:26,100
-EPIC,60,New Epic,NEW,Epic,2022-04-01 17:13:11,100
-EPIC,63,New Epic,IN_PROGRESS,Epic,2022-01-21 03:24:53,100
-SUB,64,Sub task1,IN_PROGRESS,sub 1,2022-05-13 23:37:25,50,63
-SUB,65,Sub task2,NEW,sub 2,2022-01-21 03:24:53,50,63
-SUB,58,Sub task1,DONE,sub 1,2022-09-24 08:47:46,50,57
-SUB,59,Sub task2,DONE,sub 2,2022-04-12 17:10:26,50,57
-SUB,61,Sub task1,DONE,sub 1,2022-04-14 03:22:04,50,60
-SUB,62,Sub task2,NEW,sub 2,2022-04-01 17:13:11,50,60
+EPIC,14,New Epic,NEW,Epic,2024-01-01 01:01:01,2
+SUB,17,Sub task1,DONE,sub 1,2022-02-26 04:43:34,50,16
+SUB,18,Sub task2,DONE,sub 2,2022-10-09 06:19:13,50,16
+SUB,20,Sub task1,DONE,sub 1,2022-06-16 21:38:36,50,19
+SUB,21,Sub task2,NEW,sub 2,2022-02-04 06:16:29,50,19
+SUB,23,Sub task1,IN_PROGRESS,sub 1,2022-04-22 01:55:00,50,22
+SUB,24,Sub task2,NEW,sub 2,2022-08-16 10:08:47,50,22

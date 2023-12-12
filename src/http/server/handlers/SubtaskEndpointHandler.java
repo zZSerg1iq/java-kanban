@@ -44,10 +44,10 @@ public class SubtaskEndpointHandler extends EndpointHandler {
     private ResponseEntity handleGetMethod(int id) {
         String[] pathParts = exchange.getRequestURI().getPath().split("/");
 
-        if (pathParts.length == 4 && pathParts[3].equalsIgnoreCase("epic")){
+        if (pathParts.length == 4 && pathParts[3].equalsIgnoreCase("epic")) {
             if (id != -1) {
                 var epic = taskManager.getEpicTask(id);
-                if (epic != null){
+                if (epic != null) {
                     return new ResponseEntity(gson.toJson(epic.getSubTaskList()), 200);
                 } else {
                     return new ResponseEntity("Epic не найден", 404);

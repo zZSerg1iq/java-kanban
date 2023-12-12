@@ -1,10 +1,6 @@
 package http.client;
 
-import adaper.LocalDateTimeAdapter;
-import adaper.StatusAdapter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import enums.Status;
+import excepton.KVExchangeException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,27 +8,18 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 
 public class KVTaskClient {
 
     private final String token;
     private final String url;
-    private final Gson gson;
-
 
     public KVTaskClient(String url) {
         this.url = url;
         token = getToken();
-        System.out.println(token);
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Status.class, new StatusAdapter())
-                .create();
     }
 
     private String getToken() {
-        String token = null;
         String regUrl = url + "/register";
 
         HttpClient client = HttpClient.newHttpClient();
@@ -45,20 +32,21 @@ public class KVTaskClient {
 
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            token = response.body();
-        } catch (IOException | InterruptedException e) { // обрабатываем ошибки отправки запроса
-            System.out.println("Во время выполнения запроса ресурса по URL-адресу: '" + url + "', возникла ошибка.\n" +
-                    "Проверьте, пожалуйста, адрес и повторите попытку.");
-        }
+            if (response.statusCode() != 200) {
+                throw new KVExchangeException("Регистрация не удалась. Сервер возвращает: " + response.statusCode());
+            }
+            return response.body();
 
-        return token;
+        } catch (IOException | InterruptedException e) {
+            throw new KVExchangeException("При получении токена возникло исключение: " + e);
+        }
     }
 
 
     public void put(String key, String json) {
         String regUrl = url + "/save/" + key + "?API_TOKEN=" + token;
+        //System.out.println("Saving key '" + key + "' value: " + json);
 
-       // System.out.println("Saving key '"+key+"' value: "+json);
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create(regUrl);
         HttpRequest request = HttpRequest.newBuilder()
@@ -66,35 +54,21 @@ public class KVTaskClient {
                 .header("Accept", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
                 .build();
-
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 201) {
+                throw new KVExchangeException("Сохранение не удалось. Сервер вернул: " + response.statusCode());
+            }
+
         } catch (IOException | InterruptedException e) {
-            System.out.println("Во время выполнения запроса ресурса по URL-адресу: '" + url + "', возникла ошибка.\n");
+            throw new KVExchangeException("При сохранении данных на сервер возникло исключение: " + e);
         }
     }
 
-/*    public String load(String key) {
-        try {
-            String loadUrl = url + "/load/" + key + "?API_TOKEN=" + token;
-            URI uri = URI.create(loadUrl);
-            HttpRequest httpRequest = HttpRequest.newBuilder().uri(uri).GET().build();
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("Ошибка запроса, статус запроса: " + response.statusCode());
-            }
-            return response.body();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Не удалось загрузить данные с KVServer.", e);
-        }
-    }*/
 
     public String load(String key) {
         String loadUrl = url + "/load/" + key + "?API_TOKEN=" + token;
-
-        //System.out.println(loadUrl);
-       // System.out.println("trying to get '"+key+"' ...");
+        //System.out.println("trying to get '" + key + "' ...");
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create(loadUrl);
@@ -105,11 +79,14 @@ public class KVTaskClient {
                 .build();
 
         try {
-            return client.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new KVExchangeException("Получение данных не удалось. Сервер возвращает: " + response.statusCode());
+            }
+            return response.body();
 
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-            //System.out.println("Во время выполнения запроса ресурса по URL-адресу: '" + url + "', возникла ошибка.\n");
+            throw new KVExchangeException("При получении данных с сервера возникло исключение: " + e);
         }
     }
 
@@ -126,11 +103,14 @@ public class KVTaskClient {
                 .build();
 
         try {
-            String responce = client.send(request, HttpResponse.BodyHandlers.ofString()).body();
-            return responce;
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                throw new KVExchangeException("Получение информации о сохраненных данных не удалось. Сервер возвращает: " + response.statusCode());
+            }
+            return response.body();
+
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-            //System.out.println("Во время выполнения запроса ресурса по URL-адресу: '" + url + "', возникла ошибка.\n");
+            throw new KVExchangeException("При получении информации о сохраненных данных возникло исключение: " + e);
         }
     }
 

@@ -29,7 +29,6 @@ public class EpicEndpointHandler extends EndpointHandler {
         }
 
 
-
         if (requestType.equalsIgnoreCase("get")) {
             responseEntity = handleGetMethod(id);
         } else if (requestType.equalsIgnoreCase("post")) {

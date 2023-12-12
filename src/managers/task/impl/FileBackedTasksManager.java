@@ -50,6 +50,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         HistoryFileBackInitializer.init(this, historyList);
     }
 
+    protected void initHistory(String history) {
+        List<Integer> historyList = HistoryFileBackInitializer.historyFromString(history);
+        HistoryFileBackInitializer.init(this, historyList);
+    }
+
     private List<String> readBackedTasks() {
         List<String> taskList = new ArrayList<>();
 
@@ -210,12 +215,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     protected void mapFromString(List<String> taskList) {
         for (String task : taskList) {
             if (!task.isEmpty() & !task.isBlank()) {
-                taskFromString(task);
+                tasksBackFromString(task);
             }
         }
     }
 
-    private void taskFromString(String taskString) {
+    protected String getHistoryString(){
+        return HistoryFileBackInitializer.historyToString(historyManager);
+    }
+
+    protected void tasksBackFromString(String taskString) {
         String[] temp = taskString.split(",");
 
         TaskType type = TaskType.valueOf(temp[0]);

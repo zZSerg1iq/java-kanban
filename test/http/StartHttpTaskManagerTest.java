@@ -3,10 +3,10 @@ package http;
 import enity.EpicTask;
 import enity.SubTask;
 import enity.Task;
+import enums.Status;
 import http.client.KVTaskClient;
 import http.server.HttpTaskServer;
 import http.server.KVServer;
-import managers.Managers;
 import managers.task.TaskManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Random;
 
-class HttpTaskManagerTest {
+class StartHttpTaskManagerTest {
 
 
     private static final String httpServerStopUrl = "http://localhost:8080/stop";
@@ -40,11 +40,7 @@ class HttpTaskManagerTest {
     @BeforeAll
     public static void prepare() throws IOException {
         new KVServer().start();
-
-        httpTaskServer = new HttpTaskServer();
-        taskManager = httpTaskServer.getHttpTaskManager();
         random = new Random();
-
     }
 
     @AfterAll
@@ -54,39 +50,56 @@ class HttpTaskManagerTest {
     }
 
     @Test
-    public void readWriteTest() {
-        sendGet(KVServerClearUrl);
-        int taskCount = taskManager.getTaskList().size();
-        Assertions.assertEquals(0, taskCount);
+    public void testRestorationAllEntityFromServer() throws IOException {
+        KVTaskClient client = new KVTaskClient("http://localhost:8078");
 
-        //добавляем задачи и историю
-        Task seed = generateCurrentTask("task1", random.nextInt(200)+1990, 10, 10, 10, 10, 10);
-        taskManager.addTask(seed);
+        int id = 1;
+        StringBuilder tasksString = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            var temp = generateCurrentTask("task 1", (2020+random.nextInt(30)), 10,(10+random.nextInt(20)),10, (10+random.nextInt(40)), 10);
+            temp.setId(id++);
+            temp.setStatus(Status.IN_PROGRESS);
+            tasksString.append(temp).append("\n");
+        }
 
-        Task task1 = generateRandomTask(seed);
-        taskManager.addTask(task1);
 
-        Task task2 = generateRandomTask(task1);
-        taskManager.addTask(task2);
+        StringBuilder epicsString = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            var temp = generateEpicTask();
+            temp.setId(id++);
+            temp.setStatus(Status.IN_PROGRESS);
+            epicsString.append(temp).append("\n");
+        }
 
-        Task task3 = generateRandomTask(task2);
-        taskManager.addTask(task3);
 
-        Task task4 = generateRandomTask(task3);
-        taskManager.addTask(task4);
+        int epicId = 11;
+        StringBuilder subtaskString = new StringBuilder();
+        for (int i = 1; i < 16; i++) {
+            var temp = generateCurrentSubTask("task 1", (2020+random.nextInt(40)), 10,(10+random.nextInt(20)),10, (10+random.nextInt(40)), 10, epicId);
+            temp.setId(id++);
+            temp.setStatus(Status.NEW);
+            subtaskString.append(temp).append("\n");
+            if (i % 3 ==0){
+                epicId++;
+            }
+        }
 
-        taskManager.getTask(seed.getId());
-        taskManager.getTask(task1.getId());
-        taskManager.getTask(task2.getId());
-        taskManager.getTask(task3.getId());
-        taskManager.getTask(task4.getId());
+        client.put("taskMap", tasksString.toString());
+        client.put("epicMap", epicsString.toString());
+        client.put("subtaskMap", subtaskString.toString());
 
-        Assertions.assertEquals(taskCount+5, taskManager.getTaskList().size());
+        Assertions.assertNull(httpTaskServer);
+        Assertions.assertNull(taskManager);
+
+        httpTaskServer = new HttpTaskServer();
+        taskManager = httpTaskServer.getHttpTaskManager();
+
+        Assertions.assertEquals(10, taskManager.getTaskList().size());
+        Assertions.assertEquals(5, taskManager.getEpicTaskList().size());
+        Assertions.assertEquals(15, taskManager.getSubtaskList().size());
     }
 
 
-
-    
 
     protected Task generateRandomTask(Task task) {
         if (task == null) {
